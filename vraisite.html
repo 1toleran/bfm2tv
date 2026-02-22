@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dossiers déclassifiés</title>
+    <style>
+        /* Styles généraux */
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1c1c1c;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            color: #ff4141;
+        }
+
+        /* Styles pour les onglets */
+        .tab {
+            display: inline-block;
+            cursor: pointer;
+            padding: 15px 25px;
+            background-color: #333;
+            border: 1px solid #555;
+            margin: 0 5px;
+            text-decoration: none;
+            color: #e0e0e0;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .tab:hover {
+            background-color: #ff4141;
+            color: #fff;
+        }
+
+        /* Actif et focus */
+        .tab:focus,
+        .tab:active {
+            outline: none;
+            background-color: #ff2a2a;
+        }
+
+        /* Style pour les boîtes d'onglets */
+        #tabs {
+            margin-bottom: 50px;
+        }
+
+        /* Style pour le footer */
+        footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dossiers déclassifiés</h1>
+
+    <!-- Onglets -->
+    <div id="tabs">
+        <a href="blaskol-prod.html" class="tab">Blaskol Productions</a>
+        <a href="bfm2tv.html" class="tab">BFM²TV</a>
+    </div>
+
+    <footer>
+        <p>Accès réservé aux agents autorisés uniquement.</p>
+    </footer>
+
+</body>
+</html>
