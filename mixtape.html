@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background-color: #1c1c1c; color: #e0e0e0; padding: 50px; text-align: center; }
+        h1 { color: #ff4141; margin-bottom: 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; max-width: 800px; margin: 0 auto; }
+        .track-btn { padding: 20px; background-color: #333; border: 1px solid #555; color: white; text-decoration: none; transition: 0.3s; }
+        .track-btn:hover { background-color: #ff4141; border-color: #ff4141; }
+    </style>
+</head>
+<body>
+    <h1>SÉLECTIONNEZ UNE PISTE</h1>
+    <div class="grid" id="track-grid">
+        <script>
+            const grid = document.getElementById('track-grid');
+            for(let i = 1; i <= 24; i++) {
+                const a = document.createElement('a');
+                a.href = `track${i}.html`;
+                a.className = 'track-btn';
+                a.innerText = i;
+                grid.appendChild(a);
+            }
+        </script>
+    </div>
+</body>
+</html>
