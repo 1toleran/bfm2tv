@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background-color: #1c1c1c; color: #e0e0e0; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+        
+        /* En-tête métadonnées */
+        .header { display: flex; gap: 30px; align-items: center; width: 100%; max-width: 900px; border-bottom: 2px solid #444; padding-bottom: 20px; margin-bottom: 30px; }
+        .cover { width: 150px; height: 150px; border: 2px solid #ff4141; background-color: #333; }
+        .info h1 { color: #ff4141; margin: 0; }
+        .info p { margin: 5px 0; color: #777; }
+        .youtube-link { color: #ff4141; text-decoration: none; font-weight: bold; }
+
+        /* Système de lyrics */
+        .main-container { display: flex; gap: 40px; width: 100%; max-width: 1000px; position: relative; }
+        .lyrics { flex: 1; font-size: 1.2em; line-height: 1.8em; }
+        
+        /* Lignes interactives */
+        .line { cursor: pointer; background-color: rgba(255, 65, 65, 0.05); padding: 2px 5px; transition: 0.2s; }
+        .line:hover { background-color: rgba(255, 65, 65, 0.3); color: #fff; }
+
+        /* Bulle d'explication */
+        .explanation-box { flex: 0 0 300px; background-color: #222; border-left: 4px solid #ff4141; padding: 20px; height: fit-content; position: sticky; top: 20px; opacity: 0; transition: opacity 0.3s; }
+        .explanation-box.active { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="cover_track1.jpg" alt="Cover" class="cover">
+        <div class="info">
+            <h1>TITRE DU SON #1</h1>
+            <p>Artiste : Jouenne-Colomb Thomas</p>
+            <p>Album : BFM²TV_MIXTAPE</p>
+            <a href="https://youtube.com/..." target="_blank" class="youtube-link">VOIR SUR YOUTUBE</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="lyrics">
+            <p>
+                <span class="line" data-info="Ici, j'explique la métaphore sur les cyclopes.">"Regarde le monde avec un seul œil ouvert"</span><br>
+                <span class="line" data-info="Référence à ton projet Parallèles.">"Les dimensions se croisent dans le fer"</span><br>
+                <span>Ceci est une ligne normale sans explication.</span><br>
+                <span class="line" data-info="Analyse de la rime technique.">"BFM au carré, la vision est claire"</span>
+            </p>
+        </div>
+
+        <div id="explanation" class="explanation-box">
+            <h3 style="color:#ff4141; margin-top:0;">ANALYSE</h3>
+            <p id="explanation-text">Survolez une ligne soulignée en rouge pour voir l'analyse.</p>
+        </div>
+    </div>
+
+    <script>
+        const lines = document.querySelectorAll('.line');
+        const box = document.getElementById('explanation');
+        const text = document.getElementById('explanation-text');
+
+        lines.forEach(line => {
+            line.addEventListener('mouseenter', () => {
+                text.innerText = line.getAttribute('data-info');
+                box.classList.add('active');
+            });
+            line.addEventListener('mouseleave', () => {
+                box.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
