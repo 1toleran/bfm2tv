@@ -120,56 +120,98 @@
                 }
             }
         });
-        // ÉTAPE 3.3 : RÉCUPÉRER ET AFFICHER LES ANNOTATIONS
+       let isLocked = false; // Pour savoir si on a cliqué sur une ligne
+
         async function loadAnnotations() {
             const { data: annotations, error } = await supabase
                 .from('annotations')
                 .select('*')
-                .eq('track_id', 'track1'); // On récupère seulement pour ce morceau
+                .eq('track_id', 'track1')
+                .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error("Erreur de chargement:", error);
-                return;
-            }
+            if (error) return console.error(error);
 
             if (annotations) {
+                // 1. GROUPER les annotations par texte sélectionné
+                const grouped = annotations.reduce((acc, ann) => {
+                    const txt = ann.selected_text.trim();
+                    if (!acc[txt]) acc[txt] = [];
+                    acc[txt].push(ann.explanation);
+                    return acc;
+                }, {});
+
                 let lyricsPara = document.querySelector('.lyrics p');
                 let html = lyricsPara.innerHTML;
 
-                annotations.forEach(ann => {
-                    // On prépare le texte pour qu'il soit trouvable par le code (sécurité regex)
-                    const escapedText = ann.selected_text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp(`(${escapedText})`, 'g');
-                    
-                    // On remplace le texte brut par une balise span interactive
-                    // On stocke l'explication dans 'data-info'
-                    html = html.replace(regex, `<span class="line" data-info="${ann.explanation}">$1</span>`);
-                });
+                // 2. INJECTER les balises
+                for (const [phrase, explanations] of Object.entries(grouped)) {
+                    // On crée une version "Regex" de la phrase qui accepte les <br> au milieu
+                    const regexFriendly = phrase
+                        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escape des caractères spéciaux
+                        .replace(/\s+/g, '[\\s\\n<br\\s*\\/?>]+'); // Accepte les espaces/BR/sauts de ligne
 
-                // On met à jour les lyrics avec les versions "surlignées"
+                    const regex = new RegExp(`(${regexFriendly})`, 'g');
+                    
+                    // On stocke les explications en JSON dans l'attribut data-info
+                    const jsonExplanations = JSON.stringify(explanations).replace(/"/g, '&quot;');
+                    html = html.replace(regex, `<span class="line" data-infos="${jsonExplanations}">$1</span>`);
+                }
+
                 lyricsPara.innerHTML = html;
+                setupInteractions();
             }
         }
 
-        // LANCER LE CHARGEMENT AU DÉMARRAGE
+        function setupInteractions() {
+            const box = document.getElementById('explanation');
+            const textContainer = document.getElementById('explanation-text');
+
+            // GESTION DU SURVOL (HOVER)
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.classList.contains('line') && !isLocked) {
+                    showExplanations(e.target);
+                }
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.classList.contains('line') && !isLocked) {
+                    box.classList.remove('active');
+                }
+            });
+
+            // GESTION DU CLIC (LOCK)
+            document.addEventListener('click', (e) => {
+                const line = e.target.closest('.line');
+                if (line) {
+                    isLocked = true;
+                    showExplanations(line);
+                    box.style.borderLeftColor = "#28a745"; // Vert quand c'est lock
+                } else if (!e.target.closest('#explanation')) {
+                    // Si on clique ailleurs, on unlock
+                    isLocked = false;
+                    box.classList.remove('active');
+                    box.style.borderLeftColor = "#ff4141";
+                }
+            });
+        }
+
+        function showExplanations(element) {
+            const box = document.getElementById('explanation');
+            const textContainer = document.getElementById('explanation-text');
+            const data = JSON.parse(element.getAttribute('data-infos'));
+
+            // On génère le HTML pour chaque explication
+            textContainer.innerHTML = data.map((txt, index) => `
+                <div style="background:#333; padding:10px; margin-bottom:10px; border-radius:4px; font-size:0.9em;">
+                    <strong style="color:#ff4141;">ANALYSE #${index + 1}</strong><br>
+                    ${txt}
+                </div>
+            `).join('');
+
+            box.classList.add('active');
+        }
+
         loadAnnotations();
-        // ÉTAPE 4 : Ton ancien code de hover (légèrement adapté pour le dynamique)
-        const box = document.getElementById('explanation');
-        const text = document.getElementById('explanation-text');
-
-        // On utilise la délégation d'événement car les .line sont créés dynamiquement
-        document.addEventListener('mouseover', (e) => {
-            if (e.target.classList.contains('line')) {
-                text.innerText = e.target.getAttribute('data-info');
-                box.classList.add('active');
-            }
-        });
-
-        document.addEventListener('mouseout', (e) => {
-            if (e.target.classList.contains('line')) {
-                box.classList.remove('active');
-            }
-        });
     </script>
 </body>
 </html>
