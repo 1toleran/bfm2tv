@@ -35,6 +35,9 @@
             <p>Album : BFMIXTAPE</p>
             <a href="https://www.youtube.com/watch?v=LY21MNPcWG0&list=PLe3vDBzFvHeEvfJFT3SQoM0qhQNvqgodb&index=1" target="_blank" class="youtube-link">ECOUTER SUR YOUTUBE</a>
         </div>
+        <button id="add-mode-btn" style="background: #ff4141; color: white; border: none; padding: 10px; cursor: pointer;">
+        MODE CONTRIBUTION : OFF
+        </button>
     </div>
 
     <div class="main-container">
@@ -70,30 +73,63 @@
         </div>
     </div>
 
-    <script>
-
-
-        // Import du client Supabase via CDN
+    <script type="module"> // <-- IMPORTANT : Ajoute type="module" ici
+        // ÉTAPE 2 : Connexion Supabase
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-        // Remplace par tes vraies infos disponibles dans "Project Settings" -> "API"
-        const SUPABASE_URL = 'https://TON_ID.supabase.co'
-        const SUPABASE_KEY = 'TA_CLE_ANON_PUBLIC'
+        const SUPABASE_URL = 'https://kbborotdivfkufzdjwfr.supabase.co'
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiYm9yb3RkaXZma3VmemRqd2ZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODAwMzAsImV4cCI6MjA4OTg1NjAzMH0.B4BpKOdIol4jNyIjEcUvzSwsfo93u7l98PeKo0QS1-8'
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-        
-        const lines = document.querySelectorAll('.line');
+        // ÉTAPE 3.1 : Variables pour le mode contribution
+        let contributionMode = false;
+        const addBtn = document.getElementById('add-mode-btn');
+
+        // Toggle du mode
+        addBtn.addEventListener('click', () => {
+            contributionMode = !contributionMode;
+            addBtn.innerText = contributionMode ? "MODE CONTRIBUTION : ON" : "MODE CONTRIBUTION : OFF";
+            addBtn.style.background = contributionMode ? "#28a745" : "#ff4141";
+        });
+
+        // ÉTAPE 3.2 : TON SCRIPT DE SÉLECTION (Celui que tu cherchais à placer)
+        document.addEventListener('mouseup', async () => {
+            if (!contributionMode) return;
+
+            const selectedText = window.getSelection().toString().trim();
+            if (selectedText.length > 5) { 
+                const explanation = prompt(`Analyse pour : "${selectedText}" ?`);
+                
+                if (explanation) {
+                    const { error } = await supabase
+                        .from('annotations')
+                        .insert([{ 
+                            track_id: 'track1', 
+                            selected_text: selectedText, 
+                            explanation: explanation 
+                        }]);
+
+                    if (error) alert("Erreur Supabase : " + error.message);
+                    else location.reload(); 
+                }
+            }
+        });
+
+        // ÉTAPE 4 : Ton ancien code de hover (légèrement adapté pour le dynamique)
         const box = document.getElementById('explanation');
         const text = document.getElementById('explanation-text');
 
-        lines.forEach(line => {
-            line.addEventListener('mouseenter', () => {
-                text.innerText = line.getAttribute('data-info');
+        // On utilise la délégation d'événement car les .line sont créés dynamiquement
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.classList.contains('line')) {
+                text.innerText = e.target.getAttribute('data-info');
                 box.classList.add('active');
-            });
-            line.addEventListener('mouseleave', () => {
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.classList.contains('line')) {
                 box.classList.remove('active');
-            });
+            }
         });
     </script>
 </body>
