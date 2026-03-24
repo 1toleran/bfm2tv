@@ -35,10 +35,46 @@
         .like-btn.liked { color: #ff4141; }
         .like-btn.not-liked { color: #777; }
         .analysis-block { background:#333; padding:15px; margin-bottom:15px; border-radius:4px; position:relative; }
+        /* Bouton flottant "Mode Contribution" */
+#add-mode-btn {
+    position: fixed; /* Reste à l'écran lors du scroll */
+    bottom: 30px;
+    right: 30px;
+    padding: 15px 25px;
+    border-radius: 50px; /* Coins bien arrondis */
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    z-index: 1000; /* Passe au-dessus de tout */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Ombre pour le côté "flottant" */
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+
+#add-mode-btn:hover {
+    transform: scale(1.05); /* Petit effet de zoom au survol */
+}
+
+/* Style du bouton Retour */
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #777;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: #ff4141; /* Devient rouge au survol */
+}
     </style>
 </head>
 <body>
-
+    <div style="width: 100%; max-width: 900px;">
+        <a href="mixtape.html" class="back-link">← RETOUR À LA MIXTAPE</a>
+    </div>
     <div class="header">
         <img src="sondelete.png" alt="Cover" class="cover">
         <div class="info">
@@ -47,7 +83,7 @@
             <p>Album : BFMIXTAPE</p>
             <a href="https://www.youtube.com/watch?v=LY21MNPcWG0&list=PLe3vDBzFvHeEvfJFT3SQoM0qhQNvqgodb&index=1" target="_blank" class="youtube-link">ECOUTER SUR YOUTUBE</a>
         </div>
-        <button id="add-mode-btn" style="background: #ff4141; color: white; border: none; padding: 10px; cursor: pointer;">
+        <button id="add-mode-btn" style="background: #ff4141; color: white;">
         MODE CONTRIBUTION : OFF
         </button>
     </div>
