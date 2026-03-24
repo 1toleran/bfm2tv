@@ -166,15 +166,43 @@ function showExplanations(element) {
 
 // --- SYSTÈME DE LIKES ---
 window.handleLike = async (event, id, currentLikes) => {
-    event.stopPropagation(); // Empêche de fermer la box en cliquant sur le coeur
-    const { error } = await supabase
-        .from('annotations')
-        .update({ likes: currentLikes + 1 })
-        .eq('id', id);
+    event.stopPropagation();
 
-    if (!error) {
-        event.target.style.color = "#ff4141";
-        setTimeout(() => location.reload(), 300);
+    try {
+        // 1. Récupérer l'adresse IP du visiteur
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const { ip } = await ipResponse.json();
+
+        // 2. Vérifier si cette IP a déjà liké cette annotation précise
+        const { data: existingLike, error: checkError } = await supabase
+            .from('likes_tracking')
+            .select('*')
+            .eq('annotation_id', id)
+            .eq('ip_address', ip)
+            .single();
+
+        if (existingLike) {
+            alert("Tu as déjà liké cette analyse, force pas !");
+            return;
+        }
+
+        // 3. Si c'est un nouveau like : on met à jour le compteur
+        const { error: updateError } = await supabase
+            .from('annotations')
+            .update({ likes: currentLikes + 1 })
+            .eq('id', id);
+
+        if (!updateError) {
+            // 4. On enregistre le vote dans la table de tracking
+            await supabase
+                .from('likes_tracking')
+                .insert([{ annotation_id: id, ip_address: ip }]);
+
+            event.target.style.color = "#ff4141";
+            setTimeout(() => location.reload(), 300);
+        }
+    } catch (err) {
+        console.error("Erreur système de like :", err);
     }
 };
 
