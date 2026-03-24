@@ -71,6 +71,17 @@
     </div>
 
     <script>
+
+
+        // Import du client Supabase via CDN
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+        // Remplace par tes vraies infos disponibles dans "Project Settings" -> "API"
+        const SUPABASE_URL = 'https://TON_ID.supabase.co'
+        const SUPABASE_KEY = 'TA_CLE_ANON_PUBLIC'
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        
         const lines = document.querySelectorAll('.line');
         const box = document.getElementById('explanation');
         const text = document.getElementById('explanation-text');
