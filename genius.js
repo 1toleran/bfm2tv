@@ -102,7 +102,7 @@ window.handleLike = async (event, id, currentLikes) => {
             .eq('ip_address', ip);
 
         if (existingLike && existingLike.length > 0) {
-            alert("Tu as déjà liké cette analyse, force pas !");
+            alert("T'as déjà liké cette analyse fdp");
             return;
         }
 
