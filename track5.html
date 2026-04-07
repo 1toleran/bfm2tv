@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background-color: #1c1c1c; color: #e0e0e0; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+        
+        /* En-tête métadonnées */
+        .header { display: flex; gap: 30px; align-items: center; width: 100%; max-width: 900px; border-bottom: 2px solid #444; padding-bottom: 20px; margin-bottom: 30px; }
+        .cover { 
+    width: 300px; /* On augmente la largeur pour le format vidéo */
+    height: 169px; /* Hauteur proportionnelle au 16:9 */
+    border: 2px solid #ff4141; 
+    background-color: #333; 
+}
+        .info h1 { color: #ff4141; margin: 0; }
+        .info p { margin: 5px 0; color: #777; }
+        .youtube-link { color: #ff4141; text-decoration: none; font-weight: bold; }
+
+        /* Système de lyrics */
+        .main-container { display: flex; gap: 40px; width: 100%; max-width: 1000px; position: relative; }
+        .lyrics { flex: 1; font-size: 1.2em; line-height: 1.8em; }
+        
+        /* Lignes interactives */
+        .line { 
+            cursor: pointer; 
+            border-bottom: 2px solid rgba(255, 65, 65, 0.4); /* Souligné rouge transparent */
+            background-color: transparent;
+            transition: 0.2s; 
+            }
+        .line:hover { 
+            background-color: #ff4141; 
+            color: #fff; 
+            }
+
+        /* Bulle d'explication */
+        .explanation-box { flex: 0 0 300px; background-color: #222; border-left: 4px solid #ff4141; padding: 20px; height: fit-content; position: sticky; top: 20px; opacity: 0; transition: opacity 0.3s; }
+        .explanation-box.active { opacity: 1; }
+        .like-btn { cursor: pointer; transition: 0.3s; font-size: 1.2em; }
+        .like-btn.liked { color: #ff4141; }
+        .like-btn.not-liked { color: #777; }
+        .analysis-block { background:#333; padding:15px; margin-bottom:15px; border-radius:4px; position:relative; }
+        /* Bouton flottant "Mode Contribution" */
+#add-mode-btn {
+    position: fixed; /* Reste à l'écran lors du scroll */
+    bottom: 30px;
+    right: 30px;
+    padding: 15px 25px;
+    border-radius: 50px; /* Coins bien arrondis */
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    z-index: 1000; /* Passe au-dessus de tout */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Ombre pour le côté "flottant" */
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+
+#add-mode-btn:hover {
+    transform: scale(1.05); /* Petit effet de zoom au survol */
+}
+
+/* Style du bouton Retour */
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #777;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: #ff4141; /* Devient rouge au survol */
+}
+    </style>
+</head>
+<body>
+    <div style="width: 100%; max-width: 900px;">
+        <a href="mixtape.html" class="back-link">← RETOUR À LA MIXTAPE</a>
+    </div>
+    <div class="header">
+        <iframe class="cover" 
+        src="https://youtu.be/JPAlDc695nc?list=PLe3vDBzFvHeEvfJFT3SQoM0qhQNvqgodb" 
+        title="Hannibal" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        referrerpolicy="strict-origin-when-cross-origin" 
+        allowfullscreen>
+        </iframe>
+        <div class="info">
+            <h1>Hannibal</h1>
+            <p>Artiste : BFM[2]TV - TOILETTE TURQUE, A.R.B </p>
+            <p>Album : BFMIXTAPE</p>
+            <a href="https://youtu.be/JPAlDc695nc?list=PLe3vDBzFvHeEvfJFT3SQoM0qhQNvqgodb" target="_blank" class="youtube-link">ECOUTER SUR YOUTUBE</a>
+        </div>
+        <button id="add-mode-btn" style="background: #ff4141; color: white;">
+        MODE CONTRIBUTION : OFF
+        </button>
+    </div>
+
+    <div class="main-container">
+        <div class="lyrics">
+            <p>
+Je suis l'baron, gros tu m'étonnes,<br>
+que j'cherche une meuf comme Roméo va à Véronne,<br>
+pour le flow j'ai l'sérum j'ai l'glock, pwouuu,<br>
+merde, j'ai fumé Pikachu l'pokémon.<br>
+Oulah, j'fais du hula-hoop,<br>
+J'ai maté son cul, oulah oops,<br>
+poto c'est comment ? J'suis technique come Koman,<br>
+et fort comme le barbare Conan.<br>
+J'rap, j'suis un automate, flow optimal,<br>
+l'intru j'la charcle comme un animal,<br>
+j'la charcle comme un animal, ou un cannibale,<br>
+à la Hannibal lec-teeeeuuur…<br>
+<br>
+Découpage d'la prod au cutter ciseau,<br>
+reprise de volley, bicyclette ciseau,<br>
+tu veux un son j't'en conseille 4,<br>
+dernier dresseur du conseil 4,<br>
+j'suis dans la chambre à gaz discret quand j'm'infiltre dans leur base,<br>
+nouveau micro,<br>
+chaque phase te (baise, te rase?), <br>
+t'en perds ta race.<br>
+Mixage artisanal dans le labo,<br>
+Toilette Turque, parle de nazi,<br>
+pourtant j'suis pas collabo.<br>
+Sur la prod trois rhymes c'est une belle rafale,<br>
+j'pèterai bien une belle arabe.<br>
+Carrément, que j'lâche des soupapes,<br>
+j'fonce tout droit j'me sens comme Ben Arfa.<br>
+ <br>
+Oulah, j'fais du hula-hoop,<br>
+J'ai maté son cul, oulah oops,<br>
+poto c'est comment ? J'suis technique come Koman,<br>
+et fort comme le barbare Conan.<br>
+<br>
+Découpage d'la prod au cutter ciseau,<br>
+reprise de volley, bicyclette ciseau,<br>
+tu veux un son j't'en conseille 4,<br>
+dernier dresseur du conseil 4,<br>
+<br>
+j'la charcle comme un animal, ou un cannibale,<br>
+à la Hannibal lec-teeeeuuur…<br>
+<br>
+Sur la prod trois rhymes c'est une belle rafale,<br>
+j'pèterai bien une belle arabe.<br>
+Carrément, que j'lâche des soupapes, <br>
+j'fonce tout droit j'me sens comme Ben Arfa.<br>
+<br>
+BFM BFM BFM BFM<br>
+<br>
+s/o Fefe s/o Max,<br>
+s/o Machiasse s/o Brice,<br>
+s/o Antoine, s/o Semence,<br>
+negro, sur la, prod, j'répends, d'la, semence.<br>
+            </p>
+        </div>
+
+        <div id="explanation" class="explanation-box">
+            <h3 style="color:#ff4141; margin-top:0;">ANALYSE</h3>
+            <p id="explanation-text">Survolez une ligne soulignée en rouge pour voir l'analyse.</p>
+        </div>
+        <div id="add-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#222; padding:20px; border:2px solid #ff4141; z-index:2000; width:300px;">
+            <h3 style="color:#ff4141; margin-top:0;">AJOUTER UNE ANALYSE</h3>
+            <input type="text" id="author-name" placeholder="Ton nom / pseudo" style="width:100%; margin-bottom:10px; background:#111; color:white; border:1px solid #444; padding:5px;">
+            <textarea id="explanation-input" placeholder="Ton explication..." style="width:100%; height:80px; background:#111; color:white; border:1px solid #444; padding:5px; margin-bottom:10px;"></textarea>
+            <button id="submit-btn" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer;">VALIDER</button>
+            <button id="cancel-btn" style="background:#555; color:white; border:none; padding:5px; width:100%; margin-top:5px; cursor:pointer;">ANNULER</button>
+        </div>
+    </div>
+
+    <script type="module" src="genius.js"></script>
+    
+</body>
+</html>
