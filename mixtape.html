@@ -222,9 +222,8 @@
     </label>
 
     <div id="security-test" style="display: none;">
-        <h3 style="color: #ff4141; margin-bottom: 20px;">PROTOCOLE DE VÉRIFICATION : CALIBREZ LES 4 MODULES SUR LE NIVEAU 5</h3>
+        <h3 style="color: #ff4141; margin-bottom: 20px;">PROTOCOLE DE VÉRIFICATION : CALIBREZ LES 4 MODULES</h3>
         <div class="sliders-container">
-            <div class="sliders-container">
             <div class="slider-module">
                 <label>MODULE ALPHA</label>
                 <div class="cinema-room">
@@ -261,22 +260,6 @@
             <div class="slider-module">
                 <label>MODULE DELTA</label>
                 <input type="range" min="1" max="10" value="1" class="test-slider" id="delta-slider">
-                <span class="slider-val">1</span>
-            </div>
-        </div>
-            <div class="slider-module">
-                <label>MODULE BETA</label>
-                <input type="range" min="1" max="10" value="1" class="test-slider">
-                <span class="slider-val">1</span>
-            </div>
-            <div class="slider-module">
-                <label>MODULE GAMMA</label>
-                <input type="range" min="1" max="10" value="1" class="test-slider">
-                <span class="slider-val">1</span>
-            </div>
-            <div class="slider-module">
-                <label>MODULE DELTA</label>
-                <input type="range" min="1" max="10" value="1" class="test-slider">
                 <span class="slider-val">1</span>
             </div>
         </div>
@@ -329,63 +312,50 @@
     </footer>
     <script>
         const checkbox = document.getElementById('responsibility-check');
-const testContainer = document.getElementById('security-test');
-const gridWrapper = document.getElementById('secret-grid-wrapper');
-const sliders = document.querySelectorAll('.test-slider');
-const sliderVals = document.querySelectorAll('.slider-val');
+        const testContainer = document.getElementById('security-test');
+        const gridWrapper = document.getElementById('secret-grid-wrapper');
+        const sliders = document.querySelectorAll('.test-slider');
+        const sliderVals = document.querySelectorAll('.slider-val');
 
-let isUnlocked = false; 
+        let isUnlocked = false; 
 
-// --- NOUVEAUTÉ : VÉRIFICATION DE LA MÉMOIRE AU CHARGEMENT ---
-// Si l'utilisateur a déjà réussi le test dans cette session
-if (sessionStorage.getItem('mixtapeUnlocked') === 'true') {
-    isUnlocked = true;
-    
-    // On cache la checkbox (plus besoin de valider)
-    checkbox.parentElement.style.display = 'none'; 
-    
-    // On affiche directement la grille des sons (sans l'animation lente)
-    gridWrapper.style.display = 'block';
-    gridWrapper.style.opacity = '1';
-}
+        // --- NOUVEAUTÉ : VÉRIFICATION DE LA MÉMOIRE AU CHARGEMENT ---
+        if (sessionStorage.getItem('mixtapeUnlocked') === 'true') {
+            isUnlocked = true;
+            checkbox.parentElement.style.display = 'none'; 
+            gridWrapper.style.display = 'block';
+            gridWrapper.style.opacity = '1';
+        }
 
-// 1. Afficher/Cacher le test quand la case est cochée
-checkbox.addEventListener('change', (e) => {
-    if (isUnlocked) return; 
-    
-    if (e.target.checked) {
-        testContainer.style.display = 'block';
-        testContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    } else {
-        testContainer.style.display = 'none';
-    }
-});
+        // 1. Afficher/Cacher le test
+        checkbox.addEventListener('change', (e) => {
+            if (isUnlocked) return; 
+            
+            if (e.target.checked) {
+                testContainer.style.display = 'block';
+                testContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            } else {
+                testContainer.style.display = 'none';
+            }
+        });
 
-// --- LOGIQUE DU MODULE ALPHA (CINÉMA) ---
+        // --- LOGIQUE DU MODULE ALPHA (CINÉMA) ---
         const alphaRows = document.querySelectorAll('.cinema-row');
         const alphaInput = document.getElementById('alpha-value');
 
         alphaRows.forEach(row => {
             row.addEventListener('click', (e) => {
-                if (isUnlocked) return; // Si gagné, on ne peut plus cliquer
+                if (isUnlocked) return;
                 
-                // On retire la couleur rouge de toutes les rangées
                 alphaRows.forEach(r => r.classList.remove('selected'));
-                
-                // On met en rouge la rangée cliquée
                 e.target.classList.add('selected');
-                
-                // On enregistre le numéro de la rangée dans l'input caché
                 alphaInput.value = e.target.getAttribute('data-row');
                 
                 checkWinCondition();
             });
         });
 
-        // --- LOGIQUE DES MODULES BETA, GAMMA, DELTA (SLIDERS) ---
-        const sliders = document.querySelectorAll('.test-slider');
-        const sliderVals = document.querySelectorAll('.slider-val');
-
+        // --- LOGIQUE DES MODULES BETA, GAMMA, DELTA ---
         sliders.forEach((slider, index) => {
             slider.addEventListener('input', (e) => {
                 sliderVals[index].innerText = e.target.value;
@@ -397,24 +367,17 @@ checkbox.addEventListener('change', (e) => {
         function checkWinCondition() {
             if (isUnlocked) return;
 
-            // On vérifie chaque module individuellement :
-            // Alpha attend la rangée "1"
             const alphaOk = alphaInput.value === "1";
-            
-            // Les autres attendent "5" (pour l'instant)
             const betaOk = document.getElementById('beta-slider').value === "5";
             const gammaOk = document.getElementById('gamma-slider').value === "5";
             const deltaOk = document.getElementById('delta-slider').value === "5";
 
-            // Si TOUT est correct
             if (alphaOk && betaOk && gammaOk && deltaOk) {
                 isUnlocked = true; 
-                
                 sessionStorage.setItem('mixtapeUnlocked', 'true');
                 
-                // On fige tout
                 sliders.forEach(s => s.disabled = true);
-                alphaRows.forEach(r => r.style.pointerEvents = 'none'); // Bloque les clics sur le ciné
+                alphaRows.forEach(r => r.style.pointerEvents = 'none'); 
                 checkbox.disabled = true;
 
                 gridWrapper.classList.add('revealed');
