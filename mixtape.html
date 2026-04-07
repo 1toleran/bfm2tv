@@ -73,6 +73,47 @@
             box-shadow: 0 0 5px #ff4141;
             opacity: 1;
         }
+        /* --- MODULE BETA : ASSOCIATION --- */
+        .association-game {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            width: 320px; /* Assez large pour les grands mots comme Fourchelangue */
+            background-color: #222;
+            border: 1px solid #555;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.8em;
+            user-select: none; /* Empêche de surligner le texte en cliquant */
+        }
+
+        .assoc-col { display: flex; flex-direction: column; gap: 12px; z-index: 2; }
+        .assoc-row { display: flex; align-items: center; gap: 8px; }
+        
+        /* Alignement gauche / droite */
+        .left-col .assoc-row { justify-content: flex-end; text-align: right; }
+        .right-col .assoc-row { justify-content: flex-start; text-align: left; }
+        
+        .assoc-word { color: #aaa; }
+        
+        /* Les petits ronds (nodes) */
+        .assoc-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            background-color: #555; cursor: pointer; transition: 0.2s;
+            position: relative;
+            border: 2px solid #222; /* Pour faire un petit effet d'entourage */
+        }
+        
+        .assoc-dot:hover { background-color: #ff4141; }
+        .assoc-dot.active { background-color: #ff4141; box-shadow: 0 0 6px #ff4141; transform: scale(1.2); }
+        .assoc-dot.connected { background-color: #ff4141; }
+
+        /* Le calque transparent pour dessiner les lignes */
+        #assoc-lines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+        }
+        
+        .assoc-line { stroke: #ff4141; stroke-width: 2; opacity: 0.7; }
         .info-box span {
             color: #ff4141;
             font-weight: bold;
@@ -247,8 +288,27 @@
 
             <div class="slider-module">
                 <label>MODULE BETA</label>
-                <input type="range" min="1" max="10" value="1" class="test-slider" id="beta-slider">
-                <span class="slider-val">1</span>
+                <div class="association-game" id="assoc-game">
+                    <svg id="assoc-lines"></svg>
+                    
+                    <div class="assoc-col left-col">
+                        <div class="assoc-row"><span class="assoc-word">Hula-hoop</span><div class="assoc-dot" data-side="L" data-id="1"></div></div>
+                        <div class="assoc-row"><span class="assoc-word">Arabe</span><div class="assoc-dot" data-side="L" data-id="2"></div></div>
+                        <div class="assoc-row"><span class="assoc-word">Lewandowski</span><div class="assoc-dot" data-side="L" data-id="3"></div></div>
+                        <div class="assoc-row"><span class="assoc-word">Traduction</span><div class="assoc-dot" data-side="L" data-id="4"></div></div>
+                        <div class="assoc-row"><span class="assoc-word">Fourchelangue</span><div class="assoc-dot" data-side="L" data-id="5"></div></div>
+                        <div class="assoc-row"><span class="assoc-word">Pourtant</span><div class="assoc-dot" data-side="L" data-id="6"></div></div>
+                    </div>
+                    
+                    <div class="assoc-col right-col">
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="a"></div><span class="assoc-word">Décisive</span></div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="b"></div><span class="assoc-word">Cul</span></div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="c"></div><span class="assoc-word">Collabo</span></div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="d"></div><span class="assoc-word">Georges Floyd</span></div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="e"></div><span class="assoc-word">Soupapes</span></div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="f"></div><span class="assoc-word">Coruscant</span></div>
+                    </div>
+                </div>
             </div>
 
             <div class="slider-module">
@@ -354,7 +414,103 @@
                 checkWinCondition();
             });
         });
+        // --- LOGIQUE DU MODULE BETA (ASSOCIATION) ---
+        const assocGame = document.getElementById('assoc-game');
+        const assocDots = document.querySelectorAll('.assoc-dot');
+        const svgLines = document.getElementById('assoc-lines');
+        
+        let betaSelection = null; // Stocke le premier point cliqué
+        let betaConnections = {}; // Stocke les paires, ex: { '1': 'b', '2': 'e' }
 
+        // Fonction pour dessiner les traits rouges entre les points connectés
+        function drawLines() {
+            svgLines.innerHTML = ''; // On efface les anciennes lignes
+            const gameRect = assocGame.getBoundingClientRect();
+            
+            for (let leftId in betaConnections) {
+                const rightId = betaConnections[leftId];
+                const leftDot = document.querySelector(`.assoc-dot[data-side="L"][data-id="${leftId}"]`);
+                const rightDot = document.querySelector(`.assoc-dot[data-side="R"][data-id="${rightId}"]`);
+                
+                if(leftDot && rightDot) {
+                    const lRect = leftDot.getBoundingClientRect();
+                    const rRect = rightDot.getBoundingClientRect();
+                    
+                    // Calcul du centre des points
+                    const x1 = lRect.left - gameRect.left + lRect.width/2;
+                    const y1 = lRect.top - gameRect.top + lRect.height/2;
+                    const x2 = rRect.left - gameRect.left + rRect.width/2;
+                    const y2 = rRect.top - gameRect.top + rRect.height/2;
+                    
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y2);
+                    line.setAttribute('class', 'assoc-line');
+                    svgLines.appendChild(line);
+                }
+            }
+        }
+
+        // Fonction pour actualiser l'apparence des points (actif, connecté, ou gris)
+        function updateDotStyles() {
+            assocDots.forEach(d => {
+                d.classList.remove('active', 'connected');
+                const side = d.getAttribute('data-side');
+                const id = d.getAttribute('data-id');
+                
+                if (betaSelection === d) {
+                    d.classList.add('active'); // En cours de sélection
+                } else {
+                    if (side === 'L' && betaConnections[id]) d.classList.add('connected');
+                    else if (side === 'R' && Object.values(betaConnections).includes(id)) d.classList.add('connected');
+                }
+            });
+        }
+
+        // Écouteurs de clics sur les points
+        assocDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                if (isUnlocked) return;
+                
+                const side = dot.getAttribute('data-side');
+                const id = dot.getAttribute('data-id');
+                
+                // Si le point est déjà connecté à quelque chose, on casse la connexion
+                let isConnected = false;
+                if (side === 'L' && betaConnections[id]) { delete betaConnections[id]; isConnected = true; } 
+                else if (side === 'R') {
+                    for (let l in betaConnections) {
+                        if (betaConnections[l] === id) { delete betaConnections[l]; isConnected = true; break; }
+                    }
+                }
+                
+                if (isConnected) {
+                    betaSelection = null; drawLines(); updateDotStyles(); checkWinCondition(); return;
+                }
+
+                // S'il n'est pas connecté
+                if (!betaSelection) {
+                    betaSelection = dot; // On le sélectionne
+                } else {
+                    const selSide = betaSelection.getAttribute('data-side');
+                    const selId = betaSelection.getAttribute('data-id');
+                    
+                    if (selSide === side) {
+                        betaSelection = dot; // On a cliqué du même côté, on change juste la sélection
+                    } else {
+                        // On relie !
+                        if (selSide === 'L') betaConnections[selId] = id;
+                        else betaConnections[id] = selId;
+                        betaSelection = null;
+                        drawLines();
+                    }
+                }
+                updateDotStyles();
+                checkWinCondition();
+            });
+        });
         // --- LOGIQUE DES MODULES BETA, GAMMA, DELTA ---
         sliders.forEach((slider, index) => {
             slider.addEventListener('input', (e) => {
@@ -363,21 +519,35 @@
             });
         });
 
-        // --- 3. LOGIQUE DE VICTOIRE GLOBALE ---
+       // --- 3. LOGIQUE DE VICTOIRE GLOBALE ---
         function checkWinCondition() {
             if (isUnlocked) return;
 
+            // ALPHA
             const alphaOk = alphaInput.value === "1";
-            const betaOk = document.getElementById('beta-slider').value === "5";
+            
+            // BETA (Vérification des paires)
+            const correctBetaPairs = { '1': 'b', '2': 'e', '3': 'a', '4': 'd', '5': 'f', '6': 'c' };
+            let betaOk = true;
+            let betaCount = 0;
+            for (let l in betaConnections) {
+                betaCount++;
+                if (correctBetaPairs[l] !== betaConnections[l]) betaOk = false;
+            }
+            if (betaCount !== 6) betaOk = false; // Il faut que les 6 soient reliés correctement
+
+            // GAMMA & DELTA (Sliders temporaires)
             const gammaOk = document.getElementById('gamma-slider').value === "5";
             const deltaOk = document.getElementById('delta-slider').value === "5";
 
+            // SI TOUT EST BON
             if (alphaOk && betaOk && gammaOk && deltaOk) {
                 isUnlocked = true; 
                 sessionStorage.setItem('mixtapeUnlocked', 'true');
                 
                 sliders.forEach(s => s.disabled = true);
                 alphaRows.forEach(r => r.style.pointerEvents = 'none'); 
+                assocDots.forEach(d => d.style.pointerEvents = 'none'); // Bloque le module Beta
                 checkbox.disabled = true;
 
                 gridWrapper.classList.add('revealed');
