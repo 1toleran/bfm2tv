@@ -85,6 +85,76 @@
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.6); /* */
             text-transform: uppercase;
         }
+        /* Style de la Checkbox d'engagement */
+        .security-check {
+            margin: 0 auto 30px auto;
+            max-width: 800px;
+            color: #ff4141;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .security-check input {
+            accent-color: #ff4141; /* Checkbox rouge */
+            transform: scale(1.8);
+            cursor: pointer;
+        }
+
+        /* Style des Mini-jeux (Sliders) */
+        .sliders-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+            padding: 20px;
+            border: 1px dashed #555;
+            background-color: rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .slider-module {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #777;
+        }
+
+        .test-slider {
+            accent-color: #ff4141;
+            cursor: ew-resize;
+            margin: 10px 0;
+        }
+
+        .slider-val {
+            color: #ff4141;
+            font-weight: bold;
+        }
+
+        /* Conteneur de la grille caché initialement */
+        #secret-grid-wrapper {
+            display: none;
+            opacity: 0;
+        }
+
+        /* Animation de révélation (Fade in + Glow rouge) */
+        @keyframes revealGlow {
+            0% { opacity: 0; filter: drop-shadow(0 0 0px rgba(255, 65, 65, 0)); }
+            50% { opacity: 0.8; filter: drop-shadow(0 0 25px rgba(255, 65, 65, 1)); }
+            100% { opacity: 1; filter: drop-shadow(0 0 0px rgba(255, 65, 65, 0)); }
+        }
+
+        .revealed {
+            display: block !important;
+            animation: revealGlow 2s forwards ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +176,37 @@
         Si vous conaissez pour sûr la véritable transcription, merci de contacter John par DM instagram pour une rectification.
         
     </div>
+    <label class="security-check">
+        <input type="checkbox" id="responsibility-check">
+        JE DÉCLARE PRENDRE L'ENTIÈRE RESPONSABILITÉ DES CONSÉQUENCES DE MA CONSULTATION DU CONTENU DÉCLASSIFIÉ.
+    </label>
+
+    <div id="security-test" style="display: none;">
+        <h3 style="color: #ff4141; margin-bottom: 20px;">PROTOCOLE DE VÉRIFICATION : CALIBREZ LES 4 MODULES SUR LE NIVEAU 5</h3>
+        <div class="sliders-container">
+            <div class="slider-module">
+                <label>MODULE ALPHA</label>
+                <input type="range" min="1" max="10" value="1" class="test-slider">
+                <span class="slider-val">1</span>
+            </div>
+            <div class="slider-module">
+                <label>MODULE BETA</label>
+                <input type="range" min="1" max="10" value="1" class="test-slider">
+                <span class="slider-val">1</span>
+            </div>
+            <div class="slider-module">
+                <label>MODULE GAMMA</label>
+                <input type="range" min="1" max="10" value="1" class="test-slider">
+                <span class="slider-val">1</span>
+            </div>
+            <div class="slider-module">
+                <label>MODULE DELTA</label>
+                <input type="range" min="1" max="10" value="1" class="test-slider">
+                <span class="slider-val">1</span>
+            </div>
+        </div>
+    </div>
+    <div id="secret-grid-wrapper">
     <div class="grid">
         <a href="track1.html" class="track-btn">01. [INTRO] Le son de l'été</a>
         
@@ -147,9 +248,69 @@
 
         
     </div>
-
+    </div>
     <footer style="margin-top: 50px; color: #777; font-size: 12px; text-transform: uppercase;">
         Unauthorized access may lead to death
     </footer>
+    <script>
+        const checkbox = document.getElementById('responsibility-check');
+        const testContainer = document.getElementById('security-test');
+        const gridWrapper = document.getElementById('secret-grid-wrapper');
+        const sliders = document.querySelectorAll('.test-slider');
+        const sliderVals = document.querySelectorAll('.slider-val');
+
+        let isUnlocked = false; // Pour éviter de relancer l'animation plusieurs fois
+
+        // 1. Afficher/Cacher le test quand la case est cochée
+        checkbox.addEventListener('change', (e) => {
+            if (isUnlocked) return; // Si c'est déjà gagné, on bloque l'action
+            
+            if (e.target.checked) {
+                testContainer.style.display = 'block';
+                // Petit scroll fluide vers le test
+                testContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            } else {
+                testContainer.style.display = 'none';
+            }
+        });
+
+        // 2. Vérifier les valeurs des sliders en temps réel
+        sliders.forEach((slider, index) => {
+            slider.addEventListener('input', (e) => {
+                // Met à jour le chiffre affiché en dessous du slider
+                sliderVals[index].innerText = e.target.value;
+                checkWinCondition();
+            });
+        });
+
+        // 3. Logique de victoire
+        function checkWinCondition() {
+            if (isUnlocked) return;
+
+            let allCorrect = true;
+            sliders.forEach(slider => {
+                if (slider.value !== "5") {
+                    allCorrect = false;
+                }
+            });
+
+            // Si les 4 sliders sont sur 5
+            if (allCorrect) {
+                isUnlocked = true; // On verrouille le jeu
+                
+                // On fige les inputs
+                sliders.forEach(s => s.disabled = true);
+                checkbox.disabled = true;
+
+                // On lance l'animation d'apparition de la grille
+                gridWrapper.classList.add('revealed');
+
+                // On fait un scroll fluide vers la grille après un léger délai pour laisser l'animation commencer
+                setTimeout(() => {
+                    gridWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+    </script>
 </body>
 </html>
