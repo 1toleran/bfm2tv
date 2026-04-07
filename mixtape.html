@@ -254,63 +254,73 @@
     </footer>
     <script>
         const checkbox = document.getElementById('responsibility-check');
-        const testContainer = document.getElementById('security-test');
-        const gridWrapper = document.getElementById('secret-grid-wrapper');
-        const sliders = document.querySelectorAll('.test-slider');
-        const sliderVals = document.querySelectorAll('.slider-val');
+const testContainer = document.getElementById('security-test');
+const gridWrapper = document.getElementById('secret-grid-wrapper');
+const sliders = document.querySelectorAll('.test-slider');
+const sliderVals = document.querySelectorAll('.slider-val');
 
-        let isUnlocked = false; // Pour éviter de relancer l'animation plusieurs fois
+let isUnlocked = false; 
 
-        // 1. Afficher/Cacher le test quand la case est cochée
-        checkbox.addEventListener('change', (e) => {
-            if (isUnlocked) return; // Si c'est déjà gagné, on bloque l'action
-            
-            if (e.target.checked) {
-                testContainer.style.display = 'block';
-                // Petit scroll fluide vers le test
-                testContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            } else {
-                testContainer.style.display = 'none';
-            }
-        });
+// --- NOUVEAUTÉ : VÉRIFICATION DE LA MÉMOIRE AU CHARGEMENT ---
+// Si l'utilisateur a déjà réussi le test dans cette session
+if (sessionStorage.getItem('mixtapeUnlocked') === 'true') {
+    isUnlocked = true;
+    
+    // On cache la checkbox (plus besoin de valider)
+    checkbox.parentElement.style.display = 'none'; 
+    
+    // On affiche directement la grille des sons (sans l'animation lente)
+    gridWrapper.style.display = 'block';
+    gridWrapper.style.opacity = '1';
+}
 
-        // 2. Vérifier les valeurs des sliders en temps réel
-        sliders.forEach((slider, index) => {
-            slider.addEventListener('input', (e) => {
-                // Met à jour le chiffre affiché en dessous du slider
-                sliderVals[index].innerText = e.target.value;
-                checkWinCondition();
-            });
-        });
+// 1. Afficher/Cacher le test quand la case est cochée
+checkbox.addEventListener('change', (e) => {
+    if (isUnlocked) return; 
+    
+    if (e.target.checked) {
+        testContainer.style.display = 'block';
+        testContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    } else {
+        testContainer.style.display = 'none';
+    }
+});
 
-        // 3. Logique de victoire
-        function checkWinCondition() {
-            if (isUnlocked) return;
+// 2. Vérifier les valeurs des sliders en temps réel
+sliders.forEach((slider, index) => {
+    slider.addEventListener('input', (e) => {
+        sliderVals[index].innerText = e.target.value;
+        checkWinCondition();
+    });
+});
 
-            let allCorrect = true;
-            sliders.forEach(slider => {
-                if (slider.value !== "5") {
-                    allCorrect = false;
-                }
-            });
+// 3. Logique de victoire
+function checkWinCondition() {
+    if (isUnlocked) return;
 
-            // Si les 4 sliders sont sur 5
-            if (allCorrect) {
-                isUnlocked = true; // On verrouille le jeu
-                
-                // On fige les inputs
-                sliders.forEach(s => s.disabled = true);
-                checkbox.disabled = true;
-
-                // On lance l'animation d'apparition de la grille
-                gridWrapper.classList.add('revealed');
-
-                // On fait un scroll fluide vers la grille après un léger délai pour laisser l'animation commencer
-                setTimeout(() => {
-                    gridWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 300);
-            }
+    let allCorrect = true;
+    sliders.forEach(slider => {
+        if (slider.value !== "5") {
+            allCorrect = false;
         }
+    });
+
+    if (allCorrect) {
+        isUnlocked = true; 
+        
+        // --- NOUVEAUTÉ : SAUVEGARDE DE LA VICTOIRE EN MÉMOIRE ---
+        sessionStorage.setItem('mixtapeUnlocked', 'true');
+        
+        sliders.forEach(s => s.disabled = true);
+        checkbox.disabled = true;
+
+        gridWrapper.classList.add('revealed');
+
+        setTimeout(() => {
+            gridWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+    }
+}
     </script>
 </body>
 </html>
