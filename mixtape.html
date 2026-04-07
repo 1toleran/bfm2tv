@@ -32,7 +32,47 @@
             letter-spacing: 1px;
             box-shadow: inset 0 0 10px rgba(255, 65, 65, 0.1);
         }
+        /* --- MODULE ALPHA : SALLE DE CINÉMA --- */
+        .cinema-room {
+            width: 100px;
+            background-color: #222;
+            border: 1px solid #555;
+            padding: 5px;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
 
+        .cinema-screen {
+            background-color: #444;
+            color: #aaa;
+            font-size: 0.55em;
+            text-align: center;
+            padding: 2px 0;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #ff4141;
+            letter-spacing: 1px;
+        }
+
+        .cinema-row {
+            height: 6px;
+            background-color: #555;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 1px;
+        }
+
+        .cinema-row:hover {
+            background-color: #ff4141;
+            opacity: 0.7;
+        }
+
+        .cinema-row.selected {
+            background-color: #ff4141;
+            box-shadow: 0 0 5px #ff4141;
+            opacity: 1;
+        }
         .info-box span {
             color: #ff4141;
             font-weight: bold;
@@ -184,11 +224,46 @@
     <div id="security-test" style="display: none;">
         <h3 style="color: #ff4141; margin-bottom: 20px;">PROTOCOLE DE VÉRIFICATION : CALIBREZ LES 4 MODULES SUR LE NIVEAU 5</h3>
         <div class="sliders-container">
+            <div class="sliders-container">
             <div class="slider-module">
                 <label>MODULE ALPHA</label>
-                <input type="range" min="1" max="10" value="1" class="test-slider">
+                <div class="cinema-room">
+                    <div class="cinema-screen">ÉCRAN</div>
+                    <div class="cinema-row" data-row="1"></div>
+                    <div class="cinema-row" data-row="2"></div>
+                    <div class="cinema-row" data-row="3"></div>
+                    <div class="cinema-row" data-row="4"></div>
+                    <div class="cinema-row" data-row="5"></div>
+                    <div class="cinema-row" data-row="6"></div>
+                    <div class="cinema-row" data-row="7"></div>
+                    <div class="cinema-row" data-row="8"></div>
+                    <div class="cinema-row" data-row="9"></div>
+                    <div class="cinema-row" data-row="10"></div>
+                    <div class="cinema-row" data-row="11"></div>
+                    <div class="cinema-row" data-row="12"></div>
+                    <div class="cinema-row" data-row="13"></div>
+                </div>
+                <input type="hidden" id="alpha-value" value="0">
+            </div>
+
+            <div class="slider-module">
+                <label>MODULE BETA</label>
+                <input type="range" min="1" max="10" value="1" class="test-slider" id="beta-slider">
                 <span class="slider-val">1</span>
             </div>
+
+            <div class="slider-module">
+                <label>MODULE GAMMA</label>
+                <input type="range" min="1" max="10" value="1" class="test-slider" id="gamma-slider">
+                <span class="slider-val">1</span>
+            </div>
+
+            <div class="slider-module">
+                <label>MODULE DELTA</label>
+                <input type="range" min="1" max="10" value="1" class="test-slider" id="delta-slider">
+                <span class="slider-val">1</span>
+            </div>
+        </div>
             <div class="slider-module">
                 <label>MODULE BETA</label>
                 <input type="range" min="1" max="10" value="1" class="test-slider">
@@ -286,41 +361,69 @@ checkbox.addEventListener('change', (e) => {
     }
 });
 
-// 2. Vérifier les valeurs des sliders en temps réel
-sliders.forEach((slider, index) => {
-    slider.addEventListener('input', (e) => {
-        sliderVals[index].innerText = e.target.value;
-        checkWinCondition();
-    });
-});
+// --- LOGIQUE DU MODULE ALPHA (CINÉMA) ---
+        const alphaRows = document.querySelectorAll('.cinema-row');
+        const alphaInput = document.getElementById('alpha-value');
 
-// 3. Logique de victoire
-function checkWinCondition() {
-    if (isUnlocked) return;
+        alphaRows.forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (isUnlocked) return; // Si gagné, on ne peut plus cliquer
+                
+                // On retire la couleur rouge de toutes les rangées
+                alphaRows.forEach(r => r.classList.remove('selected'));
+                
+                // On met en rouge la rangée cliquée
+                e.target.classList.add('selected');
+                
+                // On enregistre le numéro de la rangée dans l'input caché
+                alphaInput.value = e.target.getAttribute('data-row');
+                
+                checkWinCondition();
+            });
+        });
 
-    let allCorrect = true;
-    sliders.forEach(slider => {
-        if (slider.value !== "5") {
-            allCorrect = false;
+        // --- LOGIQUE DES MODULES BETA, GAMMA, DELTA (SLIDERS) ---
+        const sliders = document.querySelectorAll('.test-slider');
+        const sliderVals = document.querySelectorAll('.slider-val');
+
+        sliders.forEach((slider, index) => {
+            slider.addEventListener('input', (e) => {
+                sliderVals[index].innerText = e.target.value;
+                checkWinCondition();
+            });
+        });
+
+        // --- 3. LOGIQUE DE VICTOIRE GLOBALE ---
+        function checkWinCondition() {
+            if (isUnlocked) return;
+
+            // On vérifie chaque module individuellement :
+            // Alpha attend la rangée "1"
+            const alphaOk = alphaInput.value === "1";
+            
+            // Les autres attendent "5" (pour l'instant)
+            const betaOk = document.getElementById('beta-slider').value === "5";
+            const gammaOk = document.getElementById('gamma-slider').value === "5";
+            const deltaOk = document.getElementById('delta-slider').value === "5";
+
+            // Si TOUT est correct
+            if (alphaOk && betaOk && gammaOk && deltaOk) {
+                isUnlocked = true; 
+                
+                sessionStorage.setItem('mixtapeUnlocked', 'true');
+                
+                // On fige tout
+                sliders.forEach(s => s.disabled = true);
+                alphaRows.forEach(r => r.style.pointerEvents = 'none'); // Bloque les clics sur le ciné
+                checkbox.disabled = true;
+
+                gridWrapper.classList.add('revealed');
+
+                setTimeout(() => {
+                    gridWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
         }
-    });
-
-    if (allCorrect) {
-        isUnlocked = true; 
-        
-        // --- NOUVEAUTÉ : SAUVEGARDE DE LA VICTOIRE EN MÉMOIRE ---
-        sessionStorage.setItem('mixtapeUnlocked', 'true');
-        
-        sliders.forEach(s => s.disabled = true);
-        checkbox.disabled = true;
-
-        gridWrapper.classList.add('revealed');
-
-        setTimeout(() => {
-            gridWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 300);
-    }
-}
     </script>
 </body>
 </html>
