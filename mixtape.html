@@ -34,14 +34,23 @@
         }
         /* --- MODULE ALPHA : SALLE DE CINÉMA --- */
         .cinema-room {
-            width: 100px;
+            width: 320px; /* Aligné sur la taille des autres modules */
             background-color: #222;
             border: 1px solid #555;
-            padding: 5px;
+            padding: 15px; /* Un peu plus d'espace sur les bords */
             margin-top: 15px;
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 5px; /* Écarte un peu plus les rangées */
+            box-sizing: border-box; /* Empêche le padding de déborder */
+        }
+
+        .cinema-row {
+            height: 10px; /* Des rangées plus épaisses */
+            background-color: #555;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 2px;
         }
 
         .cinema-screen {
@@ -54,15 +63,6 @@
             border-bottom: 2px solid #ff4141;
             letter-spacing: 1px;
         }
-
-        .cinema-row {
-            height: 6px;
-            background-color: #555;
-            cursor: pointer;
-            transition: 0.2s;
-            border-radius: 1px;
-        }
-
         .cinema-row:hover {
             background-color: #ff4141;
             opacity: 0.7;
@@ -368,6 +368,8 @@
             flex-direction: column;
             align-items: center;
             color: #777;
+            min-height: 350px; 
+            justify-content: flex-start;
         }
 
         .test-slider {
