@@ -114,6 +114,86 @@
         }
         
         .assoc-line { stroke: #ff4141; stroke-width: 2; opacity: 0.7; }
+        /* --- MODULE GAMMA : ROUES CRANTÉES --- */
+        .gamma-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            background-color: #222;
+            padding: 15px;
+            border: 1px solid #555;
+            width: 320px;
+            box-sizing: border-box;
+        }
+
+        .gamma-wheel-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gamma-btn {
+            background: #444; 
+            color: #fff; 
+            border: 1px solid #777; 
+            cursor: pointer;
+            width: 30px; 
+            height: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 0.8em;
+            transition: 0.2s;
+        }
+
+        .gamma-btn:hover { background: #ff4141; }
+
+        .gamma-wheel {
+            background: linear-gradient(135deg, #e0e0e0, #888, #e0e0e0); /* Effet métal argenté */
+            color: #111; 
+            font-weight: bold; 
+            font-size: 1.5em;
+            width: 40px; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 2px solid #333; 
+            border-radius: 4px; 
+            margin: 5px 0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .gamma-input {
+            background: #111; 
+            color: #ff4141; 
+            border: 1px solid #555; 
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace; 
+            text-transform: uppercase;
+            width: 120px; 
+            text-align: center; 
+            font-weight: bold;
+            outline: none;
+        }
+
+        .gamma-input:focus {
+            border-color: #ff4141;
+            box-shadow: 0 0 5px rgba(255, 65, 65, 0.5);
+        }
+
+        .gamma-hint {
+            font-size: 0.75em; 
+            color: #888; 
+            margin-top: 15px; 
+            font-style: italic; 
+            max-width: 320px;
+            text-align: justify;
+        }
+        
         .info-box span {
             color: #ff4141;
             font-weight: bold;
@@ -268,7 +348,7 @@
             <div class="slider-module">
                 <label>MODULE ALPHA</label>
                 <div class="cinema-room">
-                    <div class="cinema-screen">ÉCRAN</div>
+                    <div class="cinema-screen">IMAX</div>
                     <div class="cinema-row" data-row="1"></div>
                     <div class="cinema-row" data-row="2"></div>
                     <div class="cinema-row" data-row="3"></div>
@@ -313,8 +393,22 @@
 
             <div class="slider-module">
                 <label>MODULE GAMMA</label>
-                <input type="range" min="1" max="10" value="1" class="test-slider" id="gamma-slider">
-                <span class="slider-val">1</span>
+                <div class="gamma-container">
+                    <div class="gamma-wheel-box">
+                        <button type="button" class="gamma-btn gamma-up" data-wheel="1">▲</button>
+                        <div class="gamma-wheel" id="gamma-w1">0</div>
+                        <button type="button" class="gamma-btn gamma-down" data-wheel="1">▼</button>
+                    </div>
+                    <div class="gamma-wheel-box">
+                        <button type="button" class="gamma-btn gamma-up" data-wheel="2">▲</button>
+                        <div class="gamma-wheel" id="gamma-w2">0</div>
+                        <button type="button" class="gamma-btn gamma-down" data-wheel="2">▼</button>
+                    </div>
+                    <input type="text" id="gamma-text" class="gamma-input" placeholder="CODE">
+                </div>
+                <div class="gamma-hint">
+                    "DÉCRYPTAGE REQUIS : Alignez l'anomalie numérique sur sa clé sémantique. Une seule occurrence valide déverrouillera le cylindre d'argent."
+                </div>
             </div>
 
             <div class="slider-module">
@@ -511,6 +605,38 @@
                 checkWinCondition();
             });
         });
+
+        // --- LOGIQUE DU MODULE GAMMA (ROUES CRANTÉES) ---
+        const gammaW1 = document.getElementById('gamma-w1');
+        const gammaW2 = document.getElementById('gamma-w2');
+        const gammaInput = document.getElementById('gamma-text');
+        const gammaBtns = document.querySelectorAll('.gamma-btn');
+
+        // Faire tourner les roues
+        gammaBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (isUnlocked) return;
+                
+                const wheelNum = e.target.getAttribute('data-wheel');
+                const wheelEl = wheelNum === "1" ? gammaW1 : gammaW2;
+                let val = parseInt(wheelEl.innerText);
+
+                // Logique pour passer de 0 à 9 et tourner en boucle
+                if (e.target.classList.contains('gamma-up')) {
+                    val = val >= 9 ? 0 : val + 1;
+                } else {
+                    val = val <= 0 ? 9 : val - 1;
+                }
+                
+                wheelEl.innerText = val;
+                checkWinCondition();
+            });
+        });
+
+        // Détecter quand le joueur tape du texte
+        gammaInput.addEventListener('input', () => {
+            checkWinCondition();
+        });
         // --- LOGIQUE DES MODULES BETA, GAMMA, DELTA ---
         sliders.forEach((slider, index) => {
             slider.addEventListener('input', (e) => {
@@ -537,7 +663,31 @@
             if (betaCount !== 6) betaOk = false; // Il faut que les 6 soient reliés correctement
 
             // GAMMA & DELTA (Sliders temporaires)
-            const gammaOk = document.getElementById('gamma-slider').value === "5";
+            // GAMMA (Vérification du code argenté)
+            let gammaOk = false;
+            
+            // On normalise le texte : enlève les accents, met tout en minuscules, et retire les espaces superflus
+            const rawText = gammaInput.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            const w1Val = parseInt(gammaW1.innerText);
+            const w2Val = parseInt(gammaW2.innerText);
+
+            // La liste des combinaisons gagnantes (un seul match suffit)
+            const validGammaPairs = [
+                { w1: 5, w2: 6, txt: "clopes" },
+                { w1: 4, w2: 2, txt: "neurones" },
+                { w1: 4, w2: 5, txt: "exil" },
+                { w1: 6, w2: 7, txt: "flops" },
+                { w1: 3, w2: 0, txt: "milfs" }
+            ];
+
+            for (let pair of validGammaPairs) {
+                if (w1Val === pair.w1 && w2Val === pair.w2 && rawText === pair.txt) {
+                    gammaOk = true;
+                    break;
+                }
+            }
+            
+            // DELTA (Toujours l'ancien slider temporaire)
             const deltaOk = document.getElementById('delta-slider').value === "5";
 
             // SI TOUT EST BON
@@ -549,6 +699,7 @@
                 alphaRows.forEach(r => r.style.pointerEvents = 'none'); 
                 assocDots.forEach(d => d.style.pointerEvents = 'none'); // Bloque le module Beta
                 checkbox.disabled = true;
+                gammaInput.disabled = true;
 
                 gridWrapper.classList.add('revealed');
 
