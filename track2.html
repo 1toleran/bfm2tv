@@ -184,12 +184,24 @@ reprise de volée comme Lewandowski.<br>
             <p id="explanation-text">Survolez une ligne soulignée en rouge pour voir l'analyse.</p>
         </div>
         <div id="add-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#222; padding:20px; border:2px solid #ff4141; z-index:2000; width:300px;">
-            <h3 style="color:#ff4141; margin-top:0;">AJOUTER UNE ANALYSE</h3>
-            <input type="text" id="author-name" placeholder="Ton nom / pseudo" style="width:100%; margin-bottom:10px; background:#111; color:white; border:1px solid #444; padding:5px;">
-            <textarea id="explanation-input" placeholder="Ton explication..." style="width:100%; height:80px; background:#111; color:white; border:1px solid #444; padding:5px; margin-bottom:10px;"></textarea>
-            <button id="submit-btn" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer;">VALIDER</button>
-            <button id="cancel-btn" style="background:#555; color:white; border:none; padding:5px; width:100%; margin-top:5px; cursor:pointer;">ANNULER</button>
-        </div>
+    <h3 style="color:#ff4141; margin-top:0;">AJOUTER UNE ANALYSE</h3>
+    
+    <input type="text" id="author-name" placeholder="Ton nom / pseudo" style="width:100%; margin-bottom:10px; background:#111; color:white; border:1px solid #444; padding:5px; box-sizing:border-box;">
+    
+    <label style="display:flex; align-items:center; gap:10px; margin-bottom:15px; font-size:0.8em; color:#ff4141; cursor:pointer; font-weight:bold;">
+        <input type="checkbox" id="is-author-check"> JE SUIS L'AUTEUR DE CE LYRICS
+    </label>
+
+    <textarea id="explanation-input" placeholder="Ton explication..." style="width:100%; height:80px; background:#111; color:white; border:1px solid #444; padding:5px; margin-bottom:10px; box-sizing:border-box;"></textarea>
+    
+    <label style="display:block; margin-bottom:10px; font-size:0.8em; color:#aaa;">
+        Preuve visuelle (Optionnel) :
+        <input type="file" id="image-upload" accept="image/*" style="width:100%; margin-top:5px; color:#fff;">
+    </label>
+
+    <button id="submit-btn" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer;">VALIDER</button>
+    <button id="cancel-btn" style="background:#555; color:white; border:none; padding:5px; width:100%; margin-top:5px; cursor:pointer;">ANNULER</button>
+</div>
     </div>
 
     <script type="module" src="genius.js"></script>
