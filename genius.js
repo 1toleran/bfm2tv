@@ -29,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const exp = document.getElementById('explanation-input').value;
             const imageInput = document.getElementById('image-upload');
             const file = imageInput ? imageInput.files[0] : null;
+            
+            // NOUVEAU : On récupère l'état de la case à cocher
+            const isAuthorCheckbox = document.getElementById('is-author-check');
+            const isAuthor = isAuthorCheckbox ? isAuthorCheckbox.checked : false;
 
             if (!name || !exp) return alert("Remplis tout, batard !");
 
@@ -38,13 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let imageUrl = null;
 
-            // GESTION DE L'IMAGE (Si une image est sélectionnée)
+            // GESTION DE L'IMAGE
             if (file) {
-                // On génère un nom unique pour éviter d'écraser une autre image (ex: 168453_image.png)
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-                // Upload dans le bucket 'images'
                 const { data: uploadData, error: uploadError } = await supabase.storage
                     .from('images')
                     .upload(fileName, file);
@@ -56,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // On récupère le lien public de l'image fraîchement uploadée
                 const { data: publicUrlData } = supabase.storage
                     .from('images')
                     .getPublicUrl(fileName);
@@ -71,7 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 explanation: exp,
                 user_name: name,
                 likes: 0,
-                image_url: imageUrl // <-- La nouvelle colonne
+                image_url: imageUrl,
+                is_author: isAuthor // <-- NOUVEAU : On envoie l'info à Supabase
             }]);
 
             if (!error) location.reload();
@@ -188,18 +190,41 @@ function setupInteractions() {
 function showExplanations(element) {
     const box = document.getElementById('explanation');
     const textContainer = document.getElementById('explanation-text');
-    const data = JSON.parse(element.getAttribute('data-infos'));
+    
+    // NOUVEAU : On utilise 'let' car on va trier (modifier) ce tableau
+    let data = JSON.parse(element.getAttribute('data-infos'));
+
+    // NOUVEAU : Le tri magique. 
+    // Règle 1 : L'auteur passe en premier. 
+    // Règle 2 : Ensuite, on trie par nombre de likes décroissant.
+    data.sort((a, b) => {
+        if (b.is_author && !a.is_author) return 1;
+        if (!b.is_author && a.is_author) return -1;
+        return b.likes - a.likes;
+    });
 
     textContainer.innerHTML = data.map((item) => {
-        // MODIFICATION : Si image_url existe, on prépare la balise image
+        // Préparation de l'image
         const imgHtml = item.image_url 
             ? `<img src="${item.image_url}" style="max-width:100%; border-radius:4px; margin-top:10px; border:1px solid #555;">` 
             : '';
 
+        // NOUVEAU : Styles dynamiques si c'est l'auteur officiel
+        const authorStyle = item.is_author 
+            ? `border: 2px solid #ff4141; box-shadow: 0 0 15px rgba(255, 65, 65, 0.3); transform: scale(1.02); background: #3d1a1a; margin-left: -5px; margin-right: -5px;` 
+            : `background: #333; border: 1px solid transparent;`;
+        
+        // NOUVEAU : Petit badge rouge pour l'auteur
+        const badgeAuthor = item.is_author 
+            ? `<span style="background:#ff4141; color:white; padding:3px 6px; font-size:0.7em; border-radius:3px; margin-left:10px; font-weight:bold; letter-spacing:1px;">AUTEUR CERTIFIÉ</span>` 
+            : '';
+
         return `
-            <div class="analysis-block">
+            <div class="analysis-block" style="${authorStyle} padding:15px; margin-bottom:15px; border-radius:4px; transition:0.3s;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <strong style="color:#ff4141; font-size:0.8em;">PAR : ${item.user_name.toUpperCase()}</strong>
+                    <strong style="color:#ff4141; font-size:0.8em; display:flex; align-items:center;">
+                        PAR : ${item.user_name.toUpperCase()} ${badgeAuthor}
+                    </strong>
                     <div style="text-align:center;">
                         <span class="like-btn not-liked" onclick="window.handleLike(event, ${item.id}, ${item.likes})">❤</span>
                         <div style="font-size:0.7em; color:#777;">${item.likes}</div>
