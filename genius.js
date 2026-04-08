@@ -5,8 +5,6 @@ const SUPABASE_URL = 'https://kbborotdivfkufzdjwfr.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiYm9yb3RkaXZma3VmemRqd2ZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODAwMzAsImV4cCI6MjA4OTg1NjAzMH0.B4BpKOdIol4jNyIjEcUvzSwsfo93u7l98PeKo0QS1-8'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-// 2. IDENTIFICATION AUTOMATIQUE DE LA PISTE
-// Si l'URL est ".../track1.html", currentTrackId sera "track1"
 const currentTrackId = window.location.pathname.split('/').pop().replace('.html', '');
 
 let isLocked = false;
@@ -29,18 +27,59 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.addEventListener('click', async () => {
             const name = document.getElementById('author-name').value;
             const exp = document.getElementById('explanation-input').value;
+            const imageInput = document.getElementById('image-upload');
+            const file = imageInput ? imageInput.files[0] : null;
+
             if (!name || !exp) return alert("Remplis tout, batard !");
 
+            // UX : On bloque le bouton pendant le chargement
+            submitBtn.innerText = "ENVOI EN COURS...";
+            submitBtn.disabled = true;
+
+            let imageUrl = null;
+
+            // GESTION DE L'IMAGE (Si une image est sélectionnée)
+            if (file) {
+                // On génère un nom unique pour éviter d'écraser une autre image (ex: 168453_image.png)
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+                // Upload dans le bucket 'images'
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('images')
+                    .upload(fileName, file);
+
+                if (uploadError) {
+                    alert("Erreur upload image : " + uploadError.message);
+                    submitBtn.innerText = "VALIDER";
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                // On récupère le lien public de l'image fraîchement uploadée
+                const { data: publicUrlData } = supabase.storage
+                    .from('images')
+                    .getPublicUrl(fileName);
+
+                imageUrl = publicUrlData.publicUrl;
+            }
+
+            // INSERTION DANS LA BASE DE DONNÉES
             const { error } = await supabase.from('annotations').insert([{ 
                 track_id: currentTrackId, 
                 selected_text: tempSelection, 
                 explanation: exp,
                 user_name: name,
-                likes: 0
+                likes: 0,
+                image_url: imageUrl // <-- La nouvelle colonne
             }]);
 
             if (!error) location.reload();
-            else alert("Erreur : " + error.message);
+            else {
+                alert("Erreur BDD : " + error.message);
+                submitBtn.innerText = "VALIDER";
+                submitBtn.disabled = false;
+            }
         });
     }
 
@@ -151,18 +190,27 @@ function showExplanations(element) {
     const textContainer = document.getElementById('explanation-text');
     const data = JSON.parse(element.getAttribute('data-infos'));
 
-    textContainer.innerHTML = data.map((item) => `
-        <div class="analysis-block">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <strong style="color:#ff4141; font-size:0.8em;">PAR : ${item.user_name.toUpperCase()}</strong>
-                <div style="text-align:center;">
-                    <span class="like-btn not-liked" onclick="window.handleLike(event, ${item.id}, ${item.likes})">❤</span>
-                    <div style="font-size:0.7em; color:#777;">${item.likes}</div>
+    textContainer.innerHTML = data.map((item) => {
+        // MODIFICATION : Si image_url existe, on prépare la balise image
+        const imgHtml = item.image_url 
+            ? `<img src="${item.image_url}" style="max-width:100%; border-radius:4px; margin-top:10px; border:1px solid #555;">` 
+            : '';
+
+        return `
+            <div class="analysis-block">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <strong style="color:#ff4141; font-size:0.8em;">PAR : ${item.user_name.toUpperCase()}</strong>
+                    <div style="text-align:center;">
+                        <span class="like-btn not-liked" onclick="window.handleLike(event, ${item.id}, ${item.likes})">❤</span>
+                        <div style="font-size:0.7em; color:#777;">${item.likes}</div>
+                    </div>
                 </div>
+                <p style="margin-top:10px; font-size:0.95em;">${item.explanation}</p>
+                ${imgHtml}
             </div>
-            <p style="margin-top:10px; font-size:0.95em;">${item.explanation}</p>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+    
     box.classList.add('active');
 }
 
