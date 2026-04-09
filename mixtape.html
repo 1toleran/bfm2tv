@@ -349,13 +349,15 @@
         }
 
         /* Style des Mini-jeux (Sliders) */
+        /* 1. Le conteneur principal passe en Grille 2x2 parfaite */
         .sliders-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 320px 320px; /* 2 colonnes fixes de 320px */
+            justify-content: center; /* Centre la grille au milieu de l'écran */
+            column-gap: 40px; /* L'écart horizontal (gauche/droite) */
+            row-gap: 20px; /* L'écart vertical (haut/bas) - bien plus serré ! */
             margin-bottom: 50px;
-            padding: 20px;
+            padding: 30px;
             border: 1px dashed #555;
             background-color: rgba(0, 0, 0, 0.5);
             max-width: 800px;
@@ -363,15 +365,14 @@
             margin-right: auto;
         }
 
+        /* 2. Les modules perdent leur vide immense */
         .slider-module {
             display: flex;
             flex-direction: column;
             align-items: center;
             color: #777;
-            min-height: 350px; 
-            justify-content: flex-start;
+            /* On a volontairement retiré le min-height: 350px ! */
         }
-
         .test-slider {
             accent-color: #ff4141;
             cursor: ew-resize;
@@ -382,7 +383,14 @@
             color: #ff4141;
             font-weight: bold;
         }
-
+        /* 3. Unification parfaite des 4 jeux */
+        .cinema-room, .association-game, .gamma-container, .delta-container {
+            width: 100% !important; /* Prend toute la place de sa colonne (320px) */
+            margin-top: 10px !important; /* Espace identique sous le titre pour tous */
+            margin-left: 0 !important; /* Annule d'éventuels décalages manuels */
+            box-sizing: border-box !important;
+            flex-grow: 1; /* Permet aux boîtes de s'étirer vers le bas pour être alignées */
+        }
         /* Conteneur de la grille caché initialement */
         #secret-grid-wrapper {
             display: none;
