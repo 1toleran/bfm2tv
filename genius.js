@@ -66,19 +66,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // INSERTION DANS LA BASE DE DONNÉES
-            const { error } = await supabase.from('annotations').insert([{ 
+            // INSERTION DANS LA BASE DE DONNÉES
+            const { data: insertData, error } = await supabase.from('annotations').insert([{ 
                 track_id: currentTrackId, 
                 selected_text: tempSelection, 
                 explanation: exp,
                 user_name: name,
                 likes: 0,
                 image_url: imageUrl,
-                is_author: isAuthor // <-- NOUVEAU : On envoie l'info à Supabase
-            }]);
+                is_author: isAuthor
+            }]).select(); // <-- IMPORTANT : .select() permet de récupérer l'ID généré
 
-            if (!error) location.reload();
+            if (!error && insertData && insertData.length > 0) {
+                // NOUVEAU : On sauvegarde l'ID dans la mémoire du navigateur
+                const newId = insertData[0].id;
+                let myComments = JSON.parse(localStorage.getItem('my_genius_comments') || '[]');
+                myComments.push(newId);
+                localStorage.setItem('my_genius_comments', JSON.stringify(myComments));
+
+                location.reload();
+            }
             else {
-                alert("Erreur BDD : " + error.message);
+                alert("Erreur BDD : " + (error ? error.message : "Erreur inconnue"));
                 submitBtn.innerText = "VALIDER";
                 submitBtn.disabled = false;
             }
@@ -160,6 +169,32 @@ window.handleLike = async (event, id, currentLikes) => {
     } catch (err) { console.error(err); }
 };
 
+// --- FONCTION DE SUPPRESSION ---
+window.deleteAnnotation = async (event, id) => {
+    event.stopPropagation(); // Empêche de fermer la boîte
+    
+    // Demande de confirmation
+    if (confirm("Es-tu sûr de vouloir supprimer cette analyse définitivement ?")) {
+        
+        // 1. Suppression dans Supabase
+        const { error } = await supabase
+            .from('annotations')
+            .delete()
+            .eq('id', id);
+
+        if (!error) {
+            // 2. Suppression dans la mémoire du navigateur
+            let myComments = JSON.parse(localStorage.getItem('my_genius_comments') || '[]');
+            myComments = myComments.filter(commentId => commentId !== id);
+            localStorage.setItem('my_genius_comments', JSON.stringify(myComments));
+            
+            // 3. Rechargement de la page
+            location.reload();
+        } else {
+            alert("Erreur lors de la suppression : " + error.message);
+        }
+    }
+};
 // 6. INTERACTIONS ET MODAL
 function setupInteractions() {
     const box = document.getElementById('explanation');
@@ -203,20 +238,26 @@ function showExplanations(element) {
         return b.likes - a.likes;
     });
 
+    // NOUVEAU : On récupère la liste des commentaires de cet utilisateur
+    const myComments = JSON.parse(localStorage.getItem('my_genius_comments') || '[]');
+
     textContainer.innerHTML = data.map((item) => {
-        // Préparation de l'image
         const imgHtml = item.image_url 
             ? `<img src="${item.image_url}" style="max-width:100%; border-radius:4px; margin-top:10px; border:1px solid #555;">` 
             : '';
 
-        // NOUVEAU : Styles dynamiques si c'est l'auteur officiel
         const authorStyle = item.is_author 
             ? `border: 2px solid #ff4141; box-shadow: 0 0 15px rgba(255, 65, 65, 0.3); transform: scale(1.02); background: #3d1a1a; margin-left: -5px; margin-right: -5px;` 
             : `background: #333; border: 1px solid transparent;`;
         
-        // NOUVEAU : Petit badge rouge pour l'auteur
         const badgeAuthor = item.is_author 
             ? `<span style="background:#ff4141; color:white; padding:3px 6px; font-size:0.7em; border-radius:3px; margin-left:10px; font-weight:bold; letter-spacing:1px;">AUTEUR CERTIFIÉ</span>` 
+            : '';
+
+        // NOUVEAU : La poubelle (s'affiche uniquement si l'ID est dans la mémoire)
+        const isMine = myComments.includes(item.id);
+        const trashBtn = isMine 
+            ? `<div style="margin-top:8px; cursor:pointer; font-size:1.1em; transition:0.2s;" onclick="window.deleteAnnotation(event, ${item.id})" onmouseover="this.style.textShadow='0 0 8px #ff4141'" onmouseout="this.style.textShadow='none'" title="Supprimer mon analyse">🗑️</div>` 
             : '';
 
         return `
@@ -228,7 +269,7 @@ function showExplanations(element) {
                     <div style="text-align:center;">
                         <span class="like-btn not-liked" onclick="window.handleLike(event, ${item.id}, ${item.likes})">❤</span>
                         <div style="font-size:0.7em; color:#777;">${item.likes}</div>
-                    </div>
+                        ${trashBtn} </div>
                 </div>
                 <p style="margin-top:10px; font-size:0.95em;">${item.explanation}</p>
                 ${imgHtml}
