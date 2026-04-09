@@ -12,32 +12,70 @@ let contributionMode = false;
 let tempSelection = "";
 
 // 3. INITIALISATION DES BOUTONS ET DU MODAL
+// 3. INITIALISATION DES BOUTONS ET DU MODAL
 document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.getElementById('add-mode-btn');
+    
+    // NOUVEAU : Variables du modal de mot de passe
+    const pwdModal = document.getElementById('password-modal');
+    const pwdSubmit = document.getElementById('password-submit-btn');
+    const pwdCancel = document.getElementById('password-cancel-btn');
+    const pwdInput = document.getElementById('legacy-password');
+    const pwdError = document.getElementById('password-error');
+
+    // 1. Clic sur le bouton d'activation
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            // Si le mode est DÉSACTIVÉ et qu'on essaie de l'activer
             if (!contributionMode) {
-                const password = prompt("Entrez le code d'habilitation de niveau 1.");
-                
-                // On vérifie le mot de passe (en ignorant les majuscules et les espaces)
-                if (password && password.trim().toLowerCase() === "johnlegacy") {
-                    contributionMode = true;
-                    addBtn.innerText = "MODE CONTRIBUTION : ON";
-                    addBtn.style.background = "#28a745"; // Vert
-                } else {
-                    // Si c'est annulé ou faux
-                    alert("Accès refusé. Habilitation insuffisante.");
-                }
-            } 
-            // Si le mode est DÉJÀ ACTIVÉ et qu'on veut l'éteindre (pas besoin de mdp)
-            else {
+                // On affiche notre belle modale rouge
+                pwdModal.style.display = 'block';
+                pwdInput.value = ''; // On vide le champ
+                pwdError.style.display = 'none'; // On cache l'erreur
+                pwdInput.focus(); // On met le curseur direct dedans
+            } else {
+                // Si on veut éteindre, on éteint direct
                 contributionMode = false;
                 addBtn.innerText = "MODE CONTRIBUTION : OFF";
-                addBtn.style.background = "#ff4141"; // Rouge
+                addBtn.style.background = "#ff4141";
             }
         });
     }
+
+    // 2. Clic sur VALIDER le mot de passe
+    if (pwdSubmit) {
+        pwdSubmit.addEventListener('click', () => {
+            const password = pwdInput.value.trim().toLowerCase();
+            
+            if (password === "johnlegacy") {
+                // VICTOIRE
+                contributionMode = true;
+                addBtn.innerText = "MODE CONTRIBUTION : ON";
+                addBtn.style.background = "#28a745";
+                pwdModal.style.display = 'none'; // On cache la modale
+            } else {
+                // ÉCHEC
+                pwdError.style.display = 'block'; // On affiche le texte rouge
+                pwdInput.value = ''; // On vide le champ pour qu'il réessaie
+            }
+        });
+    }
+
+    // 3. Clic sur ANNULER
+    if (pwdCancel) {
+        pwdCancel.addEventListener('click', () => {
+            pwdModal.style.display = 'none';
+        });
+    }
+    // Validation avec la touche "Entrée"
+    if (pwdInput) {
+        pwdInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                pwdSubmit.click();
+            }
+        });
+    }
+
+    // ... (La suite du code reste identique : const submitBtn = document.getElementById('submit-btn'); etc.)
 
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
