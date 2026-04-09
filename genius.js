@@ -9,33 +9,32 @@ const currentTrackId = window.location.pathname.split('/').pop().replace('.html'
 
 let isLocked = false;
 let contributionMode = false;
-let reportMode = false; // NOUVEAU
-let authIntent = null;  // NOUVEAU : Pour savoir pourquoi on demande le MDP ('contribution' ou 'report')
+let reportMode = false; 
+let authIntent = null;  
 let tempSelection = "";
 
-// 3. INITIALISATION DES BOUTONS ET DU MODAL
-// 3. INITIALISATION DES BOUTONS ET DU MODAL
+// 3. INITIALISATION DES BOUTONS ET DES MODALES
 document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.getElementById('add-mode-btn');
+    const reportBtn = document.getElementById('report-error-btn');
     
-    // NOUVEAU : Variables du modal de mot de passe
     const pwdModal = document.getElementById('password-modal');
     const pwdSubmit = document.getElementById('password-submit-btn');
     const pwdCancel = document.getElementById('password-cancel-btn');
     const pwdInput = document.getElementById('legacy-password');
     const pwdError = document.getElementById('password-error');
 
-    // 1. Clic sur le bouton d'activation
+    // 1. Clic sur le bouton de Contribution (Niveau 2)
     if (addBtn) {
         addBtn.addEventListener('click', () => {
             if (!contributionMode) {
-                // On affiche notre belle modale rouge
+                authIntent = 'contribution';
+                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 2';
                 pwdModal.style.display = 'block';
-                pwdInput.value = ''; // On vide le champ
-                pwdError.style.display = 'none'; // On cache l'erreur
-                pwdInput.focus(); // On met le curseur direct dedans
+                pwdInput.value = '';
+                pwdError.style.display = 'none';
+                pwdInput.focus();
             } else {
-                // Si on veut éteindre, on éteint direct
                 contributionMode = false;
                 addBtn.innerText = "MODE CONTRIBUTION : OFF";
                 addBtn.style.background = "#ff4141";
@@ -43,41 +42,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Clic sur VALIDER le mot de passe
-    if (pwdSubmit) {
-        pwdSubmit.addEventListener('click', () => {
-            const password = pwdInput.value.trim().toLowerCase();
-            
-            if (password === "johnlegacy") {
-                // VICTOIRE
-                contributionMode = true;
-                addBtn.innerText = "MODE CONTRIBUTION : ON";
-                addBtn.style.background = "#28a745";
-                pwdModal.style.display = 'none'; // On cache la modale
+    // 2. Clic sur le bouton de Signalement (Niveau 1)
+    if (reportBtn) {
+        reportBtn.addEventListener('click', () => {
+            if (!reportMode) {
+                authIntent = 'report';
+                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 1';
+                pwdModal.style.display = 'block';
+                pwdInput.value = '';
+                pwdError.style.display = 'none';
+                pwdInput.focus();
             } else {
-                // ÉCHEC
-                pwdError.style.display = 'block'; // On affiche le texte rouge
-                pwdInput.value = ''; // On vide le champ pour qu'il réessaie
+                reportMode = false;
+                reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)";
+                reportBtn.style.background = "#ff4141";
             }
         });
     }
 
-    // 3. Clic sur ANNULER
+    // 3. Clic sur VALIDER le mot de passe principal
+    if (pwdSubmit) {
+        pwdSubmit.addEventListener('click', () => {
+            const password = pwdInput.value.trim().toLowerCase();
+            
+            if (authIntent === 'contribution' && password === "johnlegacy") {
+                contributionMode = true;
+                reportMode = false; 
+                addBtn.innerText = "MODE CONTRIBUTION : ON";
+                addBtn.style.background = "#28a745";
+                if(reportBtn) { reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)"; reportBtn.style.background = "#ff4141"; }
+                pwdModal.style.display = 'none';
+            } 
+            else if (authIntent === 'report' && password === "grantaccess") {
+                reportMode = true;
+                contributionMode = false; 
+                reportBtn.innerText = "MODE SIGNALEMENT : ON";
+                reportBtn.style.background = "#28a745";
+                if(addBtn) { addBtn.innerText = "MODE CONTRIBUTION : OFF"; addBtn.style.background = "#ff4141"; }
+                pwdModal.style.display = 'none';
+            } 
+            else {
+                pwdError.style.display = 'block';
+                pwdInput.value = '';
+            }
+        });
+    }
+
     if (pwdCancel) {
         pwdCancel.addEventListener('click', () => {
             pwdModal.style.display = 'none';
         });
     }
-    // Validation avec la touche "Entrée"
+
     if (pwdInput) {
         pwdInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                pwdSubmit.click();
-            }
+            if (e.key === 'Enter') pwdSubmit.click();
         });
     }
 
-    // --- NOUVEAU : SYSTÈME D'HABILITATION NIVEAU 2 (AUTEURS) ---
+    // --- HABILITATION NIVEAU 3 (AUTEURS) ---
     const isAuthorCheck = document.getElementById('is-author-check');
     const authorModal = document.getElementById('author-auth-modal');
     const authorSubmit = document.getElementById('author-submit-btn');
@@ -85,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorInput = document.getElementById('author-password');
     const authorError = document.getElementById('author-error');
 
-    // 1. Quand quelqu'un clique sur la case "Je suis l'auteur"
     if (isAuthorCheck) {
         isAuthorCheck.addEventListener('click', (e) => {
             if (isAuthorCheck.checked) {
@@ -98,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Quand l'auteur valide son code secret
     if (authorSubmit) {
         authorSubmit.addEventListener('click', () => {
             const codeSaisi = authorInput.value.trim().toLowerCase();
@@ -114,14 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Validation avec la touche "Entrée"
     if (authorInput) {
         authorInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') authorSubmit.click();
         });
     }
 
-    // 4. Si l'utilisateur annule
     if (authorCancel) {
         authorCancel.addEventListener('click', () => {
             authorModal.style.display = 'none';
@@ -129,9 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // =====================================================================
-    // ^^^ --- FIN DU NOUVEAU CODE --- ^^^
-    // =====================================================================
+    // --- ENVOI D'UNE CONTRIBUTION (GENIUS) ---
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
         submitBtn.addEventListener('click', async () => {
@@ -140,19 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const imageInput = document.getElementById('image-upload');
             const file = imageInput ? imageInput.files[0] : null;
             
-            // NOUVEAU : On récupère l'état de la case à cocher
             const isAuthorCheckbox = document.getElementById('is-author-check');
             const isAuthor = isAuthorCheckbox ? isAuthorCheckbox.checked : false;
 
             if (!name || !exp) return alert("Remplis tout, batard !");
 
-            // UX : On bloque le bouton pendant le chargement
             submitBtn.innerText = "ENVOI EN COURS...";
             submitBtn.disabled = true;
 
             let imageUrl = null;
 
-            // GESTION DE L'IMAGE
             if (file) {
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -175,8 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageUrl = publicUrlData.publicUrl;
             }
 
-            // INSERTION DANS LA BASE DE DONNÉES
-            // INSERTION DANS LA BASE DE DONNÉES
             const { data: insertData, error } = await supabase.from('annotations').insert([{ 
                 track_id: currentTrackId, 
                 selected_text: tempSelection, 
@@ -185,10 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 likes: 0,
                 image_url: imageUrl,
                 is_author: isAuthor
-            }]).select(); // <-- IMPORTANT : .select() permet de récupérer l'ID généré
+            }]).select(); 
 
             if (!error && insertData && insertData.length > 0) {
-                // NOUVEAU : On sauvegarde l'ID dans la mémoire du navigateur
                 const newId = insertData[0].id;
                 let myComments = JSON.parse(localStorage.getItem('my_genius_comments') || '[]');
                 myComments.push(newId);
@@ -211,8 +222,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- ENVOI D'UN SIGNALEMENT (RAPPORT D'ERREUR) ---
+    const reportSubmitBtn = document.getElementById('report-submit-btn');
+    const reportCancelBtn = document.getElementById('report-cancel-btn');
+
+    if (reportSubmitBtn) {
+        reportSubmitBtn.addEventListener('click', async () => {
+            const name = document.getElementById('report-name').value;
+            const correction = document.getElementById('report-correction').value;
+            
+            if (!name || !correction) return alert("Remplis tout !");
+
+            reportSubmitBtn.innerText = "ENVOI EN COURS...";
+            reportSubmitBtn.disabled = true;
+
+            const { error } = await supabase.from('lyric_reports').insert([{ 
+                track_id: currentTrackId, 
+                user_name: name,
+                original_text: tempSelection,
+                corrected_text: correction
+            }]);
+
+            if (!error) {
+                document.getElementById('report-success').style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('report-modal').style.display = 'none';
+                    document.getElementById('report-success').style.display = 'none';
+                    document.getElementById('report-name').value = '';
+                    document.getElementById('report-correction').value = '';
+                    reportSubmitBtn.innerText = "TRANSMETTRE";
+                    reportSubmitBtn.disabled = false;
+                }, 3000);
+            } else {
+                alert("Erreur BDD : " + error.message);
+                reportSubmitBtn.innerText = "TRANSMETTRE";
+                reportSubmitBtn.disabled = false;
+            }
+        });
+    }
+
+    if (reportCancelBtn) {
+        reportCancelBtn.addEventListener('click', () => {
+            document.getElementById('report-modal').style.display = 'none';
+        });
+    }
+
     loadAnnotations();
 });
+
+// --- FIN DU DOMContentLoaded ---
+
 
 // 4. CHARGEMENT DES DONNÉES
 async function loadAnnotations() {
@@ -281,30 +341,25 @@ window.handleLike = async (event, id, currentLikes) => {
 
 // --- FONCTION DE SUPPRESSION ---
 window.deleteAnnotation = async (event, id) => {
-    event.stopPropagation(); // Empêche de fermer la boîte
+    event.stopPropagation(); 
     
-    // Demande de confirmation
     if (confirm("Es-tu sûr de vouloir supprimer cette analyse définitivement ?")) {
-        
-        // 1. Suppression dans Supabase
         const { error } = await supabase
             .from('annotations')
             .delete()
             .eq('id', id);
 
         if (!error) {
-            // 2. Suppression dans la mémoire du navigateur
             let myComments = JSON.parse(localStorage.getItem('my_genius_comments') || '[]');
             myComments = myComments.filter(commentId => commentId !== id);
             localStorage.setItem('my_genius_comments', JSON.stringify(myComments));
-            
-            // 3. Rechargement de la page
             location.reload();
         } else {
             alert("Erreur lors de la suppression : " + error.message);
         }
     }
 };
+
 // 6. INTERACTIONS ET MODAL
 function setupInteractions() {
     const box = document.getElementById('explanation');
@@ -324,7 +379,7 @@ function setupInteractions() {
             isLocked = true;
             showExplanations(line);
             box.style.borderLeftColor = "#28a745";
-        } else if (!e.target.closest('#explanation') && !e.target.closest('#add-modal')) {
+        } else if (!e.target.closest('#explanation') && !e.target.closest('#add-modal') && !e.target.closest('#report-modal')) {
             isLocked = false;
             box.classList.remove('active');
             box.style.borderLeftColor = "#ff4141";
@@ -336,19 +391,14 @@ function showExplanations(element) {
     const box = document.getElementById('explanation');
     const textContainer = document.getElementById('explanation-text');
     
-    // NOUVEAU : On utilise 'let' car on va trier (modifier) ce tableau
     let data = JSON.parse(element.getAttribute('data-infos'));
 
-    // NOUVEAU : Le tri magique. 
-    // Règle 1 : L'auteur passe en premier. 
-    // Règle 2 : Ensuite, on trie par nombre de likes décroissant.
     data.sort((a, b) => {
         if (b.is_author && !a.is_author) return 1;
         if (!b.is_author && a.is_author) return -1;
         return b.likes - a.likes;
     });
 
-    // NOUVEAU : On récupère la liste des commentaires de cet utilisateur
     const myComments = JSON.parse(localStorage.getItem('my_genius_comments') || '[]');
 
     textContainer.innerHTML = data.map((item) => {
@@ -364,7 +414,6 @@ function showExplanations(element) {
             ? `<span style="background:#ff4141; color:white; padding:3px 6px; font-size:0.7em; border-radius:3px; margin-left:10px; font-weight:bold; letter-spacing:1px;">AUTEUR CERTIFIÉ</span>` 
             : '';
 
-        // NOUVEAU : La poubelle (s'affiche uniquement si l'ID est dans la mémoire)
         const isMine = myComments.includes(item.id);
         const trashBtn = isMine 
             ? `<div style="margin-top:8px; cursor:pointer; font-size:1.1em; transition:0.2s;" onclick="window.deleteAnnotation(event, ${item.id})" onmouseover="this.style.textShadow='0 0 8px #ff4141'" onmouseout="this.style.textShadow='none'" title="Supprimer mon analyse">🗑️</div>` 
@@ -379,7 +428,8 @@ function showExplanations(element) {
                     <div style="text-align:center;">
                         <span class="like-btn not-liked" onclick="window.handleLike(event, ${item.id}, ${item.likes})">❤</span>
                         <div style="font-size:0.7em; color:#777;">${item.likes}</div>
-                        ${trashBtn} </div>
+                        ${trashBtn} 
+                    </div>
                 </div>
                 <p style="margin-top:10px; font-size:0.95em;">${item.explanation}</p>
                 ${imgHtml}
@@ -390,75 +440,18 @@ function showExplanations(element) {
     box.classList.add('active');
 }
 
-const reportBtn = document.getElementById('report-error-btn');
-
-    // 1. Clic sur le bouton de Contribution (Niveau 2)
-    if (addBtn) {
-        addBtn.addEventListener('click', () => {
-            if (!contributionMode) {
-                authIntent = 'contribution';
-                // On change le titre de la fenêtre dynamiquement
-                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 2';
-                
-                pwdModal.style.display = 'block';
-                pwdInput.value = '';
-                pwdError.style.display = 'none';
-                pwdInput.focus();
-            } else {
-                contributionMode = false;
-                addBtn.innerText = "MODE CONTRIBUTION : OFF";
-                addBtn.style.background = "#ff4141";
-            }
-        });
+// --- SÉLECTION DU TEXTE ---
+document.addEventListener('mouseup', () => {
+    if (!contributionMode && !reportMode) return;
+    
+    const selection = window.getSelection().toString().trim();
+    if (selection.length > 5) {
+        tempSelection = selection;
+        
+        if (contributionMode) {
+            document.getElementById('add-modal').style.display = 'block';
+        } else if (reportMode) {
+            document.getElementById('report-modal').style.display = 'block';
+        }
     }
-
-    // 2. Clic sur le bouton de Signalement (Niveau 1)
-    if (reportBtn) {
-        reportBtn.addEventListener('click', () => {
-            if (!reportMode) {
-                authIntent = 'report';
-                // On change le titre de la fenêtre dynamiquement
-                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 1';
-                
-                pwdModal.style.display = 'block';
-                pwdInput.value = '';
-                pwdError.style.display = 'none';
-                pwdInput.focus();
-            } else {
-                reportMode = false;
-                reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)";
-                reportBtn.style.background = "#ff4141";
-            }
-        });
-    }
-
-    // 3. Clic sur VALIDER le mot de passe (Vérification croisée)
-    if (pwdSubmit) {
-        pwdSubmit.addEventListener('click', () => {
-            const password = pwdInput.value.trim().toLowerCase();
-            
-            // CAS A : Il veut contribuer et donne le MDP Niveau 2
-            if (authIntent === 'contribution' && password === "johnlegacy") {
-                contributionMode = true;
-                reportMode = false; // On éteint l'autre mode
-                addBtn.innerText = "MODE CONTRIBUTION : ON";
-                addBtn.style.background = "#28a745";
-                if(reportBtn) { reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)"; reportBtn.style.background = "#ff4141"; }
-                pwdModal.style.display = 'none';
-            } 
-            // CAS B : Il veut signaler et donne le MDP Niveau 1
-            else if (authIntent === 'report' && password === "grantaccess") {
-                reportMode = true;
-                contributionMode = false; // On éteint l'autre mode
-                reportBtn.innerText = "MODE SIGNALEMENT : ON";
-                reportBtn.style.background = "#28a745";
-                if(addBtn) { addBtn.innerText = "MODE CONTRIBUTION : OFF"; addBtn.style.background = "#ff4141"; }
-                pwdModal.style.display = 'none';
-            } 
-            // ÉCHEC : Mot de passe faux ou ne correspondant pas au bon niveau
-            else {
-                pwdError.style.display = 'block';
-                pwdInput.value = '';
-            }
-        });
-    }
+});
