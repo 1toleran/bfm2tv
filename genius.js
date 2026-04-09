@@ -9,6 +9,8 @@ const currentTrackId = window.location.pathname.split('/').pop().replace('.html'
 
 let isLocked = false;
 let contributionMode = false;
+let reportMode = false; // NOUVEAU
+let authIntent = null;  // NOUVEAU : Pour savoir pourquoi on demande le MDP ('contribution' ou 'report')
 let tempSelection = "";
 
 // 3. INITIALISATION DES BOUTONS ET DU MODAL
@@ -388,11 +390,75 @@ function showExplanations(element) {
     box.classList.add('active');
 }
 
-document.addEventListener('mouseup', () => {
-    if (!contributionMode) return;
-    const selection = window.getSelection().toString().trim();
-    if (selection.length > 5) {
-        tempSelection = selection;
-        document.getElementById('add-modal').style.display = 'block';
+const reportBtn = document.getElementById('report-error-btn');
+
+    // 1. Clic sur le bouton de Contribution (Niveau 2)
+    if (addBtn) {
+        addBtn.addEventListener('click', () => {
+            if (!contributionMode) {
+                authIntent = 'contribution';
+                // On change le titre de la fenêtre dynamiquement
+                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 2';
+                
+                pwdModal.style.display = 'block';
+                pwdInput.value = '';
+                pwdError.style.display = 'none';
+                pwdInput.focus();
+            } else {
+                contributionMode = false;
+                addBtn.innerText = "MODE CONTRIBUTION : OFF";
+                addBtn.style.background = "#ff4141";
+            }
+        });
     }
-});
+
+    // 2. Clic sur le bouton de Signalement (Niveau 1)
+    if (reportBtn) {
+        reportBtn.addEventListener('click', () => {
+            if (!reportMode) {
+                authIntent = 'report';
+                // On change le titre de la fenêtre dynamiquement
+                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 1';
+                
+                pwdModal.style.display = 'block';
+                pwdInput.value = '';
+                pwdError.style.display = 'none';
+                pwdInput.focus();
+            } else {
+                reportMode = false;
+                reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)";
+                reportBtn.style.background = "#ff4141";
+            }
+        });
+    }
+
+    // 3. Clic sur VALIDER le mot de passe (Vérification croisée)
+    if (pwdSubmit) {
+        pwdSubmit.addEventListener('click', () => {
+            const password = pwdInput.value.trim().toLowerCase();
+            
+            // CAS A : Il veut contribuer et donne le MDP Niveau 2
+            if (authIntent === 'contribution' && password === "johnlegacy") {
+                contributionMode = true;
+                reportMode = false; // On éteint l'autre mode
+                addBtn.innerText = "MODE CONTRIBUTION : ON";
+                addBtn.style.background = "#28a745";
+                if(reportBtn) { reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)"; reportBtn.style.background = "#ff4141"; }
+                pwdModal.style.display = 'none';
+            } 
+            // CAS B : Il veut signaler et donne le MDP Niveau 1
+            else if (authIntent === 'report' && password === "grantaccess") {
+                reportMode = true;
+                contributionMode = false; // On éteint l'autre mode
+                reportBtn.innerText = "MODE SIGNALEMENT : ON";
+                reportBtn.style.background = "#28a745";
+                if(addBtn) { addBtn.innerText = "MODE CONTRIBUTION : OFF"; addBtn.style.background = "#ff4141"; }
+                pwdModal.style.display = 'none';
+            } 
+            // ÉCHEC : Mot de passe faux ou ne correspondant pas au bon niveau
+            else {
+                pwdError.style.display = 'block';
+                pwdInput.value = '';
+            }
+        });
+    }
