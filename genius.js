@@ -75,8 +75,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ... (La suite du code reste identique : const submitBtn = document.getElementById('submit-btn'); etc.)
+    // --- NOUVEAU : SYSTÈME D'HABILITATION NIVEAU 2 (AUTEURS) ---
+    const isAuthorCheck = document.getElementById('is-author-check');
+    const authorModal = document.getElementById('author-auth-modal');
+    const authorSubmit = document.getElementById('author-submit-btn');
+    const authorCancel = document.getElementById('author-cancel-btn');
+    const authorInput = document.getElementById('author-password');
+    const authorError = document.getElementById('author-error');
 
+    // 1. Quand quelqu'un clique sur la case "Je suis l'auteur"
+    if (isAuthorCheck) {
+        isAuthorCheck.addEventListener('click', (e) => {
+            if (isAuthorCheck.checked) {
+                e.preventDefault(); 
+                authorModal.style.display = 'block';
+                authorInput.value = '';
+                authorError.style.display = 'none';
+                authorInput.focus();
+            }
+        });
+    }
+
+    // 2. Quand l'auteur valide son code secret
+    if (authorSubmit) {
+        authorSubmit.addEventListener('click', () => {
+            const codeSaisi = authorInput.value.trim().toLowerCase();
+            const codesAutorises = (window.ALLOWED_AUTHOR_CODES || []).map(c => c.toLowerCase());
+
+            if (codesAutorises.includes(codeSaisi)) {
+                isAuthorCheck.checked = true; 
+                authorModal.style.display = 'none';
+            } else {
+                authorError.style.display = 'block';
+                authorInput.value = ''; 
+            }
+        });
+    }
+
+    // 3. Validation avec la touche "Entrée"
+    if (authorInput) {
+        authorInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') authorSubmit.click();
+        });
+    }
+
+    // 4. Si l'utilisateur annule
+    if (authorCancel) {
+        authorCancel.addEventListener('click', () => {
+            authorModal.style.display = 'none';
+            isAuthorCheck.checked = false; 
+        });
+    }
+
+    // =====================================================================
+    // ^^^ --- FIN DU NOUVEAU CODE --- ^^^
+    // =====================================================================
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
         submitBtn.addEventListener('click', async () => {
