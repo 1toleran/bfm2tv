@@ -160,8 +160,21 @@
     <button id="password-submit-btn" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer; font-weight:bold;">VALIDER</button>
     <button id="password-cancel-btn" style="background:#555; color:white; border:none; padding:5px; width:100%; margin-top:5px; cursor:pointer;">ANNULER</button>
 </div>
-    </div>
+    <div id="author-auth-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#222; padding:20px; border:2px solid #ff4141; z-index:2001; width:300px; text-align:center; box-shadow: 0 0 25px rgba(255,65,65,0.3);">
+    <h3 style="color:#ff4141; margin-top:0; letter-spacing: 1px;">HABILITATION NIVEAU 2</h3>
+    <p style="color:#aaa; font-size:0.8em; margin-bottom:15px; text-transform:uppercase;">Identifiant Auteur Requis.</p>
 
+    <input type="password" id="author-password" placeholder="CODE AUTEUR..." style="width:100%; margin-bottom:10px; background:#111; color:#ff4141; border:1px solid #555; padding:8px; box-sizing:border-box; text-align:center; font-family:'Courier New', monospace; font-weight:bold; letter-spacing: 2px;">
+
+    <p id="author-error" style="color:#ff4141; font-size:0.8em; display:none; margin-top:-5px; margin-bottom:10px; font-weight:bold;">Accès refusé. Habilitation insuffisante.</p>
+
+    <button id="author-submit-btn" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer; font-weight:bold;">VÉRIFIER L'IDENTITÉ</button>
+    <button id="author-cancel-btn" style="background:#555; color:white; border:none; padding:5px; width:100%; margin-top:5px; cursor:pointer;">ANNULER</button>
+</div>
+    </div>
+    <script>
+    window.ALLOWED_AUTHOR_CODES = ["mrgreedyprime"];
+    </script>
     <script type="module" src="genius.js"></script>
     
 </body>
