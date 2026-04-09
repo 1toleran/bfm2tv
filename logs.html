@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>SYSTEM LOGS - SUJET 13</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #00ff00; /* Vert hacker old school */
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px;
+            margin: 0;
+        }
+        h1 {
+            color: #ff4141;
+            text-transform: uppercase;
+            border-bottom: 1px dashed #ff4141;
+            padding-bottom: 10px;
+        }
+        .log-entry {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-left: 2px solid #555;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .log-header {
+            font-weight: bold;
+            color: #888;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        .log-data {
+            margin: 4px 0;
+            font-size: 0.95em;
+        }
+        .log-highlight {
+            color: #ff4141;
+        }
+        #loading {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>[ARCHIVES SECRÈTES] - RAPPORTS D'ANOMALIES LYRICS</h1>
+    
+    <div id="loading">Connexion à la base de données... Récupération des logs...</div>
+    <div id="logs-container"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+        // Tes vrais identifiants (comme dans genius.js)
+        const SUPABASE_URL = 'https://kbborotdivfkufzdjwfr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiYm9yb3RkaXZma3VmemRqd2ZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODAwMzAsImV4cCI6MjA4OTg1NjAzMH0.B4BpKOdIol4jNyIjEcUvzSwsfo93u7l98PeKo0QS1-8';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function fetchLogs() {
+            const { data, error } = await supabase
+                .from('lyric_reports')
+                .select('*')
+                .order('created_at', { ascending: false }); // Du plus récent au plus vieux
+
+            document.getElementById('loading').style.display = 'none';
+
+            if (error) {
+                document.getElementById('logs-container').innerHTML = `<p style="color:red;">Erreur Système: ${error.message}</p>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                document.getElementById('logs-container').innerHTML = "<p>Aucune anomalie signalée pour le moment.</p>";
+                return;
+            }
+
+            const html = data.map(log => {
+                // Formatage propre de la date
+                const dateObj = new Date(log.created_at);
+                const dateStr = dateObj.toLocaleDateString('fr-FR') + ' à ' + dateObj.toLocaleTimeString('fr-FR');
+
+                return `
+                    <div class="log-entry">
+                        <div class="log-header">[${dateStr}] - OPÉRATEUR: ${log.user_name} - CIBLE: ${log.track_id}</div>
+                        <div class="log-data">ERREUR DÉTECTÉE : <span style="color:#aaa;">"${log.original_text}"</span></div>
+                        <div class="log-data">CORRECTION SUGGÉRÉE : <span class="log-highlight">"${log.corrected_text}"</span></div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('logs-container').innerHTML = html;
+        }
+
+        fetchLogs();
+    </script>
+</body>
+</html>
