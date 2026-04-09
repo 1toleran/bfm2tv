@@ -16,9 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.getElementById('add-mode-btn');
     if (addBtn) {
         addBtn.addEventListener('click', () => {
-            contributionMode = !contributionMode;
-            addBtn.innerText = contributionMode ? "MODE CONTRIBUTION : ON" : "MODE CONTRIBUTION : OFF";
-            addBtn.style.background = contributionMode ? "#28a745" : "#ff4141";
+            // Si le mode est DÉSACTIVÉ et qu'on essaie de l'activer
+            if (!contributionMode) {
+                const password = prompt("Entrez le code d'habilitation de niveau 1.");
+                
+                // On vérifie le mot de passe (en ignorant les majuscules et les espaces)
+                if (password && password.trim().toLowerCase() === "johnlegacy") {
+                    contributionMode = true;
+                    addBtn.innerText = "MODE CONTRIBUTION : ON";
+                    addBtn.style.background = "#28a745"; // Vert
+                } else {
+                    // Si c'est annulé ou faux
+                    alert("Accès refusé. Habilitation insuffisante.");
+                }
+            } 
+            // Si le mode est DÉJÀ ACTIVÉ et qu'on veut l'éteindre (pas besoin de mdp)
+            else {
+                contributionMode = false;
+                addBtn.innerText = "MODE CONTRIBUTION : OFF";
+                addBtn.style.background = "#ff4141"; // Rouge
+            }
         });
     }
 
