@@ -584,6 +584,7 @@
             checkbox.parentElement.style.display = 'none'; 
             gridWrapper.style.display = 'block';
             gridWrapper.style.opacity = '1';
+            document.getElementById('secret-log-link').style.display = 'none';
         }
 
         // 1. Afficher/Cacher le test
@@ -896,6 +897,9 @@
                 assocDots.forEach(d => d.style.pointerEvents = 'none'); // Bloque le module Beta
                 checkbox.disabled = true;
                 gammaInput.disabled = true;
+
+                // ---> COLLE LA LIGNE ICI AUSSI <---
+                document.getElementById('secret-log-link').style.display = 'none';
 
                 gridWrapper.classList.add('revealed');
 
