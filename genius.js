@@ -29,7 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
         addBtn.addEventListener('click', () => {
             if (!contributionMode) {
                 authIntent = 'contribution';
+                
+                // On met à jour le titre ET le texte
                 document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 2';
+                document.querySelector('#password-modal p').innerText = "Entrez le code d'habilitation de niveau 2.";
+                
                 pwdModal.style.display = 'block';
                 pwdInput.value = '';
                 pwdError.style.display = 'none';
@@ -47,7 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         reportBtn.addEventListener('click', () => {
             if (!reportMode) {
                 authIntent = 'report';
+                
+                // On met à jour le titre ET le texte
                 document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 1';
+                document.querySelector('#password-modal p').innerText = "Entrez le code d'habilitation de niveau 1.";
+                
                 pwdModal.style.display = 'block';
                 pwdInput.value = '';
                 pwdError.style.display = 'none';
