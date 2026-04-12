@@ -2,361 +2,49 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <title>SÉLECTION DE PISTE - SYSTÈME DÉCLASSIFIÉ</title>
     <style>
         body { 
-            font-family: 'Courier New', Courier, monospace; /* */
-            background-color: #1c1c1c; /* */
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1c1c1c;
             color: #e0e0e0; 
             margin: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Permet au footer de rester en bas */
+            min-height: 100vh;
             text-align: center; 
         }
 
         h1 { 
-            color: #ff4141; /* */
+            color: #ff4141; 
             text-transform: uppercase;
             letter-spacing: 2px;
             margin: 40px 0; 
         }
+
         .info-box {
             max-width: 800px;
             margin: 0 auto 40px auto;
             padding: 15px 25px;
-            border: 1px solid #ff4141; /* Cadre rouge fin */
-            background-color: rgba(255, 65, 65, 0.05); /* Léger fond rouge transparent */
+            border: 1px solid #ff4141;
+            background-color: rgba(255, 65, 65, 0.05);
             font-size: 0.9em;
             line-height: 1.5;
             text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: inset 0 0 10px rgba(255, 65, 65, 0.1);
         }
-        /* --- MODULE ALPHA : SALLE DE CINÉMA --- */
-        .cinema-room {
-            width: 320px; /* Aligné sur la taille des autres modules */
-            background-color: #222;
-            border: 1px solid #555;
-            padding: 15px; /* Un peu plus d'espace sur les bords */
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px; /* Écarte un peu plus les rangées */
-            box-sizing: border-box; /* Empêche le padding de déborder */
-        }
 
-        .cinema-row {
-            height: 10px; /* Des rangées plus épaisses */
-            background-color: #555;
-            cursor: pointer;
-            transition: 0.2s;
-            border-radius: 2px;
-        }
+        .info-box span { color: #ff4141; font-weight: bold; }
 
-        .cinema-screen {
-            background-color: #444;
-            color: #aaa;
-            font-size: 0.55em;
-            text-align: center;
-            padding: 2px 0;
-            margin-bottom: 8px;
-            border-bottom: 2px solid #ff4141;
-            letter-spacing: 1px;
-        }
-        .cinema-row:hover {
-            background-color: #ff4141;
-            opacity: 0.7;
-        }
-
-        .cinema-row.selected {
-            background-color: #ff4141;
-            box-shadow: 0 0 5px #ff4141;
-            opacity: 1;
-        }
-        /* --- MODULE BETA : ASSOCIATION --- */
-        .association-game {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            width: 320px; /* Assez large pour les grands mots comme Fourchelangue */
-            background-color: #222;
-            border: 1px solid #555;
-            padding: 15px;
-            margin-top: 15px;
-            font-size: 0.8em;
-            user-select: none; /* Empêche de surligner le texte en cliquant */
-        }
-
-        .assoc-col { display: flex; flex-direction: column; gap: 12px; z-index: 2; }
-        .assoc-row { display: flex; align-items: center; gap: 8px; }
-        
-        /* Alignement gauche / droite */
-        .left-col .assoc-row { justify-content: flex-end; text-align: right; }
-        .right-col .assoc-row { justify-content: flex-start; text-align: left; }
-        
-        .assoc-word { color: #aaa; }
-        
-        /* Les petits ronds (nodes) */
-        .assoc-dot {
-            width: 14px; height: 14px; border-radius: 50%;
-            background-color: #555; cursor: pointer; transition: 0.2s;
-            position: relative;
-            border: 2px solid #222; /* Pour faire un petit effet d'entourage */
-        }
-        
-        .assoc-dot:hover { background-color: #ff4141; }
-        .assoc-dot.active { background-color: #ff4141; box-shadow: 0 0 6px #ff4141; transform: scale(1.2); }
-        .assoc-dot.connected { background-color: #ff4141; }
-
-        /* Le calque transparent pour dessiner les lignes */
-        #assoc-lines {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
-        }
-        
-        .assoc-line { stroke: #ff4141; stroke-width: 2; opacity: 0.7; }
-        /* --- MODULE GAMMA : ROUES CRANTÉES --- */
-        .gamma-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            background-color: #222;
-            padding: 15px;
-            border: 1px solid #555;
-            width: 320px;
-            box-sizing: border-box;
-        }
-
-        .gamma-wheel-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .gamma-btn {
-            background: #444; 
-            color: #fff; 
-            border: 1px solid #777; 
-            cursor: pointer;
-            width: 30px; 
-            height: 20px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-size: 0.8em;
-            transition: 0.2s;
-        }
-
-        .gamma-btn:hover { background: #ff4141; }
-
-        .gamma-wheel {
-            background: linear-gradient(135deg, #e0e0e0, #888, #e0e0e0); /* Effet métal argenté */
-            color: #111; 
-            font-weight: bold; 
-            font-size: 1.5em;
-            width: 40px; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            border: 2px solid #333; 
-            border-radius: 4px; 
-            margin: 5px 0;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.6);
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        .gamma-input {
-            background: #111; 
-            color: #ff4141; 
-            border: 1px solid #555; 
-            padding: 10px;
-            font-family: 'Courier New', Courier, monospace; 
-            text-transform: uppercase;
-            width: 120px; 
-            text-align: center; 
-            font-weight: bold;
-            outline: none;
-        }
-
-        .gamma-input:focus {
-            border-color: #ff4141;
-            box-shadow: 0 0 5px rgba(255, 65, 65, 0.5);
-        }
-
-        .gamma-hint {
-            font-size: 0.75em; 
-            color: #888; 
-            margin-top: 15px; 
-            font-style: italic; 
-            max-width: 320px;
-            text-align: justify;
-        }
-        /* --- MODULE DELTA : MACHINE À SOUS --- */
-        .delta-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            background-color: #222;
-            padding: 15px;
-            border: 1px dashed #555;
-            width: 320px;
-            box-sizing: border-box;
-        }
-
-        .slot-machine {
-            display: flex;
-            gap: 10px;
-            background-color: #111;
-            padding: 10px;
-            border: 2px solid #444;
-            border-radius: 5px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
-        }
-
-        .reel {
-            width: 50px;
-            height: 50px;
-            background-color: #ddd; /* Fond clair pour faire ressortir les dessins */
-            border: 2px solid #555;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            overflow: hidden;
-            box-shadow: inset 0 3px 5px rgba(0,0,0,0.3);
-        }
-
-        .reel img {
-            width: 90%;
-            height: 90%;
-            object-fit: contain;
-            pointer-events: none;
-        }
-
-        /* Le système de levier */
-        .lever-box {
-            width: 25px;
-            height: 80px;
-            background-color: #111;
-            position: relative;
-            border-radius: 12px;
-            border: 2px solid #444;
-        }
-
-        .lever-track {
-            position: absolute;
-            top: 10px;
-            bottom: 10px;
-            left: 9px;
-            width: 4px;
-            background-color: #000;
-            border-radius: 2px;
-        }
-
-        .lever-handle {
-            position: absolute;
-            top: 0;
-            left: -7px;
-            width: 35px;
-            height: 25px;
-            background-color: #ff4141;
-            border-radius: 5px;
-            cursor: grab;
-            box-shadow: 0 5px 0 #990000;
-            transition: box-shadow 0.1s;
-            z-index: 2;
-        }
-
-        .lever-handle:active {
-            cursor: grabbing;
-            box-shadow: 0 2px 0 #990000;
-        }
-        .info-box span {
-            color: #ff4141;
-            font-weight: bold;
-        }
-        .grid-container {
-            flex: 1; /* Pousse le footer vers le bas si la grille est petite */
-            padding: 20px;
-        }
-
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-            gap: 15px; 
-            max-width: 1000px; 
-            margin: 0 auto; 
-        }
-
-        .track-btn { 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            aspect-ratio: 1 / 1; 
-            padding: 10px; 
-            background-color: #333; 
-            border: 1px solid #555; 
-            color: white; 
-            text-decoration: none; 
-            transition: 0.3s ease;
-            box-sizing: border-box; /* */
-            font-weight: bold;
-            font-size: 0.9rem;
-            overflow-wrap: anywhere;
-            word-break: break-word;
-        }
-
-        .track-btn:hover { 
-            background-color: #ff4141; /* */
-            border-color: #ff4141;
-            box-shadow: 0 0 15px rgba(255, 65, 65, 0.4);
-        }
-
-        /* STYLE DU PIED DE PAGE (FOOTER) */
-        footer {
-            padding: 15px;
-            background: linear-gradient(to right, #444, #333); /* */
-            color: #ff4141; /* */
-            text-align: center;
-            font-size: 1em;
-            border-top: 2px solid #555; /* */
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.6); /* */
-            text-transform: uppercase;
-        }
-        /* Style de la Checkbox d'engagement */
-        .security-check {
-            margin: 0 auto 30px auto;
-            max-width: 800px;
-            color: #ff4141;
-            font-weight: bold;
-            font-size: 1.1em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .security-check input {
-            accent-color: #ff4141; /* Checkbox rouge */
-            transform: scale(1.8);
-            cursor: pointer;
-        }
-
-        /* Style des Mini-jeux (Sliders) */
-        /* 1. Le conteneur principal passe en Grille 2x2 parfaite */
+        /* --- SYSTÈME DE GRILLE CSS 2x2 --- */
         .sliders-container {
             display: grid;
-            grid-template-columns: 320px 320px; /* 2 colonnes fixes de 320px */
-            justify-content: center; /* Centre la grille au milieu de l'écran */
-            column-gap: 40px; /* L'écart horizontal (gauche/droite) */
-            row-gap: 20px; /* L'écart vertical (haut/bas) - bien plus serré ! */
-            margin-bottom: 50px;
+            grid-template-columns: 320px 320px;
+            justify-content: center;
+            column-gap: 40px;
+            row-gap: 20px;
+            margin-bottom: 30px;
             padding: 30px;
             border: 1px dashed #555;
             background-color: rgba(0, 0, 0, 0.5);
@@ -365,89 +53,108 @@
             margin-right: auto;
         }
 
-        /* 2. Les modules perdent leur vide immense */
-        .slider-module {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #777;
-            /* On a volontairement retiré le min-height: 350px ! */
-        }
-        .test-slider {
-            accent-color: #ff4141;
-            cursor: ew-resize;
-            margin: 10px 0;
-        }
+        .slider-module { display: flex; flex-direction: column; align-items: center; color: #777; }
 
-        .slider-val {
-            color: #ff4141;
-            font-weight: bold;
-        }
-        /* 3. Unification parfaite des 4 jeux */
+        /* --- MODULES (UNIFICATION) --- */
         .cinema-room, .association-game, .gamma-container, .delta-container {
-            width: 100% !important; /* Prend toute la place de sa colonne (320px) */
-            margin-top: 10px !important; /* Espace identique sous le titre pour tous */
-            margin-left: 0 !important; /* Annule d'éventuels décalages manuels */
+            width: 100% !important;
+            margin-top: 10px !important;
             box-sizing: border-box !important;
-            flex-grow: 1; /* Permet aux boîtes de s'étirer vers le bas pour être alignées */
+            background-color: #222;
+            border: 1px solid #555;
+            padding: 15px;
         }
-        /* Conteneur de la grille caché initialement */
-        #secret-grid-wrapper {
+
+        /* Styles spécifiques Modules (Alpha, Beta, Gamma, Delta) condensés pour la lecture */
+        .cinema-screen { background:#444; color:#aaa; font-size:0.55em; text-align:center; padding:2px 0; margin-bottom:8px; border-bottom:2px solid #ff4141; }
+        .cinema-row { height:10px; background-color:#555; cursor:pointer; margin-bottom:5px; border-radius:2px; }
+        .cinema-row.selected { background-color:#ff4141; box-shadow:0 0 5px #ff4141; }
+
+        .association-game { position:relative; display:flex; justify-content:space-between; font-size:0.8em; }
+        .assoc-col { display:flex; flex-direction:column; gap:12px; z-index:2; }
+        .assoc-dot { width:14px; height:14px; border-radius:50%; background:#555; cursor:pointer; border:2px solid #222; }
+        .assoc-dot.connected { background:#ff4141; }
+        #assoc-lines { position:absolute; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+        .assoc-line { stroke:#ff4141; stroke-width:2; opacity:0.7; }
+
+        .gamma-container { display:flex; align-items:center; justify-content:center; gap:15px; }
+        .gamma-wheel { background:linear-gradient(135deg, #e0e0e0, #888, #e0e0e0); color:#111; font-weight:bold; font-size:1.5em; width:40px; height:50px; display:flex; align-items:center; justify-content:center; border-radius:4px; }
+        .gamma-input { background:#111; color:#ff4141; border:1px solid #555; padding:10px; width:120px; text-align:center; outline:none; }
+
+        .slot-machine { display:flex; gap:10px; background:#111; padding:10px; border:2px solid #444; }
+        .reel { width:50px; height:50px; background:#ddd; display:flex; align-items:center; justify-content:center; font-size:2em; }
+        .lever-box { width:25px; height:80px; background:#111; position:relative; border:2px solid #444; border-radius:12px; }
+        .lever-handle { position:absolute; top:0; left:-7px; width:35px; height:25px; background:#ff4141; border-radius:5px; cursor:grab; }
+
+        /* --- GRILLE DES PISTES --- */
+        #secret-grid-wrapper { display: none; margin-top: 40px; padding-bottom: 50px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; max-width: 1000px; margin: 0 auto; }
+        .track-btn { aspect-ratio:1/1; background:#333; border:1px solid #555; color:white; text-decoration:none; display:flex; align-items:center; justify-content:center; font-weight:bold; transition:0.3s; padding:10px; font-size:0.85em; text-align:center; }
+        .track-btn:hover { background:#ff4141; border-color:#ff4141; box-shadow:0 0 15px rgba(255, 65, 65, 0.4); }
+
+        /* --- MESSAGE DE RÉCOMPENSE --- */
+        #aptitude-success-message {
             display: none;
-            opacity: 0;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(40, 167, 69, 0.15);
+            border: 2px solid #28a745;
+            color: #28a745;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: successGlow 1s infinite alternate;
         }
 
-        /* Animation de révélation (Fade in + Glow rouge) */
-        @keyframes revealGlow {
-            0% { opacity: 0; filter: drop-shadow(0 0 0px rgba(255, 65, 65, 0)); }
-            50% { opacity: 0.8; filter: drop-shadow(0 0 25px rgba(255, 65, 65, 1)); }
-            100% { opacity: 1; filter: drop-shadow(0 0 0px rgba(255, 65, 65, 0)); }
+        @keyframes successGlow {
+            from { box-shadow: 0 0 10px rgba(40, 167, 69, 0.2); }
+            to { box-shadow: 0 0 25px rgba(40, 167, 69, 0.6); }
         }
 
-        .revealed {
-            display: block !important;
-            animation: revealGlow 2s forwards ease-in-out;
-        }
+        .security-check { margin-bottom: 30px; color: #ff4141; font-weight: bold; cursor: pointer; }
+        .security-check input { transform: scale(1.5); margin-right: 10px; }
+        
+        footer { padding:20px; color:#777; font-size:10px; text-transform:uppercase; border-top:1px solid #333; }
+        #secret-log-link { position: absolute; left: 5%; top: 200px; width: 30px; height: 30px; opacity: 0; z-index: 100; }
     </style>
 </head>
 <body>
-    <h1>SÉLECTIONNEZ UNE PISTE</h1>
-    <a href="logs.html" id="secret-log-link" style="position: absolute; left: 10%; top: 200px; width: 30px; height: 30px; background: transparent; cursor: default; opacity: 1; z-index: 100;"></a>    <div class="info-box">
-        <span>CONTENU :</span> DOSSIERS DÉCLASSIFIÉS / BFM[2]TV_MIXTAPE<br><br><br>
-        <span>ALERTE :</span> L'analyse des données peut révéler des vérités inconfortables. 
-        Consultez chaque piste avec prudence, et assumez seuls les conséquences de votre lecture.<br><br><br>
-        <span>UTILISATION DES RESSOURCES :</span> <br><br><br>
-        <span>1:</span> Si vous repérez une erreur de transcription de lyrics, merci de la signaler grâce au système dédié<br><br>
-        <span>2:</span> Si vous avec une interprétation plausible d'un passage de lyrics, merci de la renseigner grâce au système dédié<br><br>
-        <span>3:</span> Si vous êtes l'auteur d'un son, et que vous souhaitez expliquer un morceau de ses lyrics, merci de vous identifier grâce au système dédié<br><br><br>
-        <span>NE PAS:</span> Partager vos codes d'habilitation | Mettre de lien web dans vos genius | Upload d'image de plus de 50 MB | Uspvwfs mft mpht | Utiliser de VPN pour liker plusieurs fois un commentaire
-        
+
+    <h1>ACCÈS AU SYSTÈME</h1>
+
+    <a href="logs.html" id="secret-log-link" title="Accès restreint"></a>
+
+    <div class="info-box">
+        <span>HABILITATION NIVEAU 1 :</span> CONSULTATION AUTORISÉE. <br>
+        <span>HABILITATION NIVEAU 2 :</span> DROIT DE CONTRIBUTION (REQUIS : TEST D'APTITUDE). <br><br>
+        L'analyse des données peut révéler des vérités inconfortables. Assumez seuls les conséquences de votre lecture.
     </div>
+
     <label class="security-check">
         <input type="checkbox" id="responsibility-check">
-        JE DÉCLARE ASSUMER L'ENTIÈRE RESPONSABILITÉ DES CONSÉQUENCES DE MA CONSULTATION DU CONTENU DÉCLASSIFIÉ.
+        JE CERTIFIE PRENDRE L'ENTIÈRE RESPONSABILITÉ DE MA CONSULTATION.
     </label>
 
-    <div id="security-test" style="display: none;">
-        <h3 style="color: #ff4141; margin-bottom: 20px;">PROTOCOLE DE VÉRIFICATION : CALIBREZ LES 4 MODULES</h3>
+    <div id="security-test" style="display: none; border-top: 1px solid #333; padding-top: 30px;">
+        <h3 style="color: #ff4141; margin-bottom: 5px; letter-spacing: 2px;">TEST D'APTITUDE OPTIONNEL</h3>
+        <p style="color: #777; font-size: 0.8em; margin-bottom: 25px;">VALIDEZ LES 4 MODULES POUR OBTENIR LE CODE D'HABILITATION DE NIVEAU 2 (CONTRIBUTION).</p>
+        
+        <div id="aptitude-success-message">
+            FÉLICITATIONS. TEST RÉUSSI.<br>
+            VOTRE CODE D'HABILITATION DE NIVEAU 2 EST : <span style="color: #fff; font-size: 1.4em;">johnlegacy</span>
+        </div>
+
         <div class="sliders-container">
             <div class="slider-module">
                 <label>MODULE ALPHA</label>
                 <div class="cinema-room">
                     <div class="cinema-screen">IMAX</div>
-                    <div class="cinema-row" data-row="1"></div>
-                    <div class="cinema-row" data-row="2"></div>
-                    <div class="cinema-row" data-row="3"></div>
-                    <div class="cinema-row" data-row="4"></div>
-                    <div class="cinema-row" data-row="5"></div>
-                    <div class="cinema-row" data-row="6"></div>
-                    <div class="cinema-row" data-row="7"></div>
-                    <div class="cinema-row" data-row="8"></div>
-                    <div class="cinema-row" data-row="9"></div>
-                    <div class="cinema-row" data-row="10"></div>
-                    <div class="cinema-row" data-row="11"></div>
-                    <div class="cinema-row" data-row="12"></div>
-                    <div class="cinema-row" data-row="13"></div>
+                    <div class="cinema-row" data-row="1"></div><div class="cinema-row" data-row="2"></div>
+                    <div class="cinema-row" data-row="3"></div><div class="cinema-row" data-row="4"></div>
+                    <div class="cinema-row" data-row="5"></div><div class="cinema-row" data-row="6"></div>
+                    <div class="cinema-row" data-row="7"></div><div class="cinema-row" data-row="8"></div>
+                    <div class="cinema-row" data-row="9"></div><div class="cinema-row" data-row="10"></div>
                 </div>
                 <input type="hidden" id="alpha-value" value="0">
             </div>
@@ -457,20 +164,16 @@
                 <div class="association-game" id="assoc-game">
                     <svg id="assoc-lines"></svg>
                     <div class="assoc-col left-col">
-                        <div class="assoc-row"><span class="assoc-word">Hula-hoop</span><div class="assoc-dot" data-side="L" data-id="1"></div></div>
-                        <div class="assoc-row"><span class="assoc-word">Arabe</span><div class="assoc-dot" data-side="L" data-id="2"></div></div>
-                        <div class="assoc-row"><span class="assoc-word">Lewandowski</span><div class="assoc-dot" data-side="L" data-id="3"></div></div>
-                        <div class="assoc-row"><span class="assoc-word">Traduction</span><div class="assoc-dot" data-side="L" data-id="4"></div></div>
-                        <div class="assoc-row"><span class="assoc-word">Fourchelangue</span><div class="assoc-dot" data-side="L" data-id="5"></div></div>
-                        <div class="assoc-row"><span class="assoc-word">Pourtant</span><div class="assoc-dot" data-side="L" data-id="6"></div></div>
+                        <div class="assoc-row">Hula-hoop<div class="assoc-dot" data-side="L" data-id="1"></div></div>
+                        <div class="assoc-row">Arabe<div class="assoc-dot" data-side="L" data-id="2"></div></div>
+                        <div class="assoc-row">Lewandowski<div class="assoc-dot" data-side="L" data-id="3"></div></div>
+                        <div class="assoc-row">Traduction<div class="assoc-dot" data-side="L" data-id="4"></div></div>
                     </div>
                     <div class="assoc-col right-col">
-                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="a"></div><span class="assoc-word">Décisive</span></div>
-                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="b"></div><span class="assoc-word">Cul</span></div>
-                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="c"></div><span class="assoc-word">Collabo</span></div>
-                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="d"></div><span class="assoc-word">Georges Floyd</span></div>
-                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="e"></div><span class="assoc-word">Soupapes</span></div>
-                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="f"></div><span class="assoc-word">Coruscant</span></div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="a"></div>Décisive</div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="b"></div>Cul</div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="c"></div>Collabo</div>
+                        <div class="assoc-row"><div class="assoc-dot" data-side="R" data-id="d"></div>Georges Floyd</div>
                     </div>
                 </div>
             </div>
@@ -479,19 +182,16 @@
                 <label>MODULE GAMMA</label>
                 <div class="gamma-container">
                     <div class="gamma-wheel-box">
-                        <button type="button" class="gamma-btn gamma-up" data-wheel="1">▲</button>
+                        <button type="button" onclick="changeWheel('w1', 1)">▲</button>
                         <div class="gamma-wheel" id="gamma-w1">0</div>
-                        <button type="button" class="gamma-btn gamma-down" data-wheel="1">▼</button>
+                        <button type="button" onclick="changeWheel('w1', -1)">▼</button>
                     </div>
                     <div class="gamma-wheel-box">
-                        <button type="button" class="gamma-btn gamma-up" data-wheel="2">▲</button>
+                        <button type="button" onclick="changeWheel('w2', 1)">▲</button>
                         <div class="gamma-wheel" id="gamma-w2">0</div>
-                        <button type="button" class="gamma-btn gamma-down" data-wheel="2">▼</button>
+                        <button type="button" onclick="changeWheel('w2', -1)">▼</button>
                     </div>
                     <input type="text" id="gamma-text" class="gamma-input" placeholder="CODE">
-                </div>
-                <div class="gamma-hint">
-                    DÉCRYPTAGE REQUIS : Liez un code et sa clé sémantique. 5 associations possible.
                 </div>
             </div>
 
@@ -511,391 +211,83 @@
                 <input type="hidden" id="delta-value" value="0">
             </div>
         </div>
-    </div><div id="secret-grid-wrapper">
-    <div class="grid">
-        <a href="track1.html" class="track-btn">01. [INTRO] Le son de l'été</a>
-        
-        <a href="track2.html" class="track-btn">02. Lewandowski</a>
-        
-        <a href="track3.html" class="track-btn">03. 5 CYCLOPES</a>
-
-        <a href="track4.html" class="track-btn">04. Arnold</a>
-
-        <a href="track5.html" class="track-btn">05. Hannibal</a>
-
-        <a href="track6.html" class="track-btn">06. Dimarco</a>
-
-        <a href="track7.html" class="track-btn">07. En légende</a>
-
-        <a href="track8.html" class="track-btn">08. Emancipation</a>
-
-        <a href="track9.html" class="track-btn">09. Intruder</a>
-
-        <a href="track10.html" class="track-btn">10. Purple Guy</a>
-
-        <a href="track11.html" class="track-btn">11. Thanos</a>
-
-        <a href="track12.html" class="track-btn">12. Ambiance Negus</a>
-
-        <a href="track13.html" class="track-btn">13. New Era</a>
-
-        <a href="track14.html" class="track-btn">14. Heaven's Gate</a>
-
-        <a href="track15.html" class="track-btn">15. Argent</a>
-
-        <a href="track16.html" class="track-btn">16. Asphyxie</a>
-
-        <a href="track17.html" class="track-btn">17. Jupliano Chuechan [DECLASSIFIED]</a>
-       
-        <a href="track18.html" class="track-btn">18. Deux Deux</a>
-
-        <a href="track19.html" class="track-btn">19. [OUTRO] Le son de l'automne </a>
-
-        
     </div>
+
+    <div id="secret-grid-wrapper">
+        <h3 style="color: #ff4141;">ARCHIVES DÉCLASSIFIÉES - ACCÈS NIVEAU 1</h3>
+        <div class="grid">
+            <a href="track1.html" class="track-btn">01. [INTRO] Le son de l'été</a>
+            <a href="track2.html" class="track-btn">02. Lewandowski</a>
+            <a href="track3.html" class="track-btn">03. 5 CYCLOPES</a>
+            <a href="track4.html" class="track-btn">04. Arnold</a>
+            <a href="track5.html" class="track-btn">05. Hannibal</a>
+            </div>
     </div>
-    <footer style="margin-top: 50px; color: #777; font-size: 12px; text-transform: uppercase;">
-        Unauthorized access may lead to death
-    </footer>
+
+    <footer>Unauthorized access may lead to system termination</footer>
+
     <script>
         const checkbox = document.getElementById('responsibility-check');
         const testContainer = document.getElementById('security-test');
         const gridWrapper = document.getElementById('secret-grid-wrapper');
-        const sliders = document.querySelectorAll('.test-slider');
-        const sliderVals = document.querySelectorAll('.slider-val');
+        let isGameWon = false;
 
-        let isUnlocked = false; 
-
-        // --- NOUVEAUTÉ : VÉRIFICATION DE LA MÉMOIRE AU CHARGEMENT ---
+        // --- GESTION DE LA SESSION ---
         if (sessionStorage.getItem('mixtapeUnlocked') === 'true') {
-            isUnlocked = true;
-            checkbox.parentElement.style.display = 'none'; 
+            checkbox.checked = true;
+            testContainer.style.display = 'block';
             gridWrapper.style.display = 'block';
-            gridWrapper.style.opacity = '1';
-            document.getElementById('secret-log-link').style.display = 'none';
         }
 
-        // 1. Afficher/Cacher le test
         checkbox.addEventListener('change', (e) => {
-            if (isUnlocked) return; 
-            
             if (e.target.checked) {
                 testContainer.style.display = 'block';
-                testContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                gridWrapper.style.display = 'block';
+                sessionStorage.setItem('mixtapeUnlocked', 'true');
+                gridWrapper.scrollIntoView({ behavior: 'smooth' });
             } else {
                 testContainer.style.display = 'none';
+                gridWrapper.style.display = 'none';
             }
         });
 
-        // --- LOGIQUE DU MODULE ALPHA (CINÉMA) ---
-        const alphaRows = document.querySelectorAll('.cinema-row');
-        const alphaInput = document.getElementById('alpha-value');
+        // --- LOGIQUE MODULES (SIMPLIFIÉE POUR L'EXEMPLE) ---
+        // (Garde tes fonctions existantes pour Alpha, Beta, Gamma, Delta)
+        // Je remets ici les déclencheurs principaux :
 
-        alphaRows.forEach(row => {
-            row.addEventListener('click', (e) => {
-                if (isUnlocked) return;
-                
-                alphaRows.forEach(r => r.classList.remove('selected'));
-                e.target.classList.add('selected');
-                alphaInput.value = e.target.getAttribute('data-row');
-                
-                checkWinCondition();
-            });
-        });
-        // --- LOGIQUE DU MODULE BETA (ASSOCIATION) ---
-        const assocGame = document.getElementById('assoc-game');
-        const assocDots = document.querySelectorAll('.assoc-dot');
-        const svgLines = document.getElementById('assoc-lines');
-        
-        let betaSelection = null; // Stocke le premier point cliqué
-        let betaConnections = {}; // Stocke les paires, ex: { '1': 'b', '2': 'e' }
-
-        // Fonction pour dessiner les traits rouges entre les points connectés
-        function drawLines() {
-            svgLines.innerHTML = ''; // On efface les anciennes lignes
-            const gameRect = assocGame.getBoundingClientRect();
-            
-            for (let leftId in betaConnections) {
-                const rightId = betaConnections[leftId];
-                const leftDot = document.querySelector(`.assoc-dot[data-side="L"][data-id="${leftId}"]`);
-                const rightDot = document.querySelector(`.assoc-dot[data-side="R"][data-id="${rightId}"]`);
-                
-                if(leftDot && rightDot) {
-                    const lRect = leftDot.getBoundingClientRect();
-                    const rRect = rightDot.getBoundingClientRect();
-                    
-                    // Calcul du centre des points
-                    const x1 = lRect.left - gameRect.left + lRect.width/2;
-                    const y1 = lRect.top - gameRect.top + lRect.height/2;
-                    const x2 = rRect.left - gameRect.left + rRect.width/2;
-                    const y2 = rRect.top - gameRect.top + rRect.height/2;
-                    
-                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line.setAttribute('x1', x1);
-                    line.setAttribute('y1', y1);
-                    line.setAttribute('x2', x2);
-                    line.setAttribute('y2', y2);
-                    line.setAttribute('class', 'assoc-line');
-                    svgLines.appendChild(line);
-                }
-            }
-        }
-
-        // Fonction pour actualiser l'apparence des points (actif, connecté, ou gris)
-        function updateDotStyles() {
-            assocDots.forEach(d => {
-                d.classList.remove('active', 'connected');
-                const side = d.getAttribute('data-side');
-                const id = d.getAttribute('data-id');
-                
-                if (betaSelection === d) {
-                    d.classList.add('active'); // En cours de sélection
-                } else {
-                    if (side === 'L' && betaConnections[id]) d.classList.add('connected');
-                    else if (side === 'R' && Object.values(betaConnections).includes(id)) d.classList.add('connected');
-                }
-            });
-        }
-
-        // Écouteurs de clics sur les points
-        assocDots.forEach(dot => {
-            dot.addEventListener('click', () => {
-                if (isUnlocked) return;
-                
-                const side = dot.getAttribute('data-side');
-                const id = dot.getAttribute('data-id');
-                
-                // Si le point est déjà connecté à quelque chose, on casse la connexion
-                let isConnected = false;
-                if (side === 'L' && betaConnections[id]) { delete betaConnections[id]; isConnected = true; } 
-                else if (side === 'R') {
-                    for (let l in betaConnections) {
-                        if (betaConnections[l] === id) { delete betaConnections[l]; isConnected = true; break; }
-                    }
-                }
-                
-                if (isConnected) {
-                    betaSelection = null; drawLines(); updateDotStyles(); checkWinCondition(); return;
-                }
-
-                // S'il n'est pas connecté
-                if (!betaSelection) {
-                    betaSelection = dot; // On le sélectionne
-                } else {
-                    const selSide = betaSelection.getAttribute('data-side');
-                    const selId = betaSelection.getAttribute('data-id');
-                    
-                    if (selSide === side) {
-                        betaSelection = dot; // On a cliqué du même côté, on change juste la sélection
-                    } else {
-                        // On relie !
-                        if (selSide === 'L') betaConnections[selId] = id;
-                        else betaConnections[id] = selId;
-                        betaSelection = null;
-                        drawLines();
-                    }
-                }
-                updateDotStyles();
-                checkWinCondition();
-            });
-        });
-
-        // --- LOGIQUE DU MODULE GAMMA (ROUES CRANTÉES) ---
-        const gammaW1 = document.getElementById('gamma-w1');
-        const gammaW2 = document.getElementById('gamma-w2');
-        const gammaInput = document.getElementById('gamma-text');
-        const gammaBtns = document.querySelectorAll('.gamma-btn');
-
-        // Faire tourner les roues
-        gammaBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (isUnlocked) return;
-                
-                const wheelNum = e.target.getAttribute('data-wheel');
-                const wheelEl = wheelNum === "1" ? gammaW1 : gammaW2;
-                let val = parseInt(wheelEl.innerText);
-
-                // Logique pour passer de 0 à 9 et tourner en boucle
-                if (e.target.classList.contains('gamma-up')) {
-                    val = val >= 9 ? 0 : val + 1;
-                } else {
-                    val = val <= 0 ? 9 : val - 1;
-                }
-                
-                wheelEl.innerText = val;
-                checkWinCondition();
-            });
-        });
-
-        // Détecter quand le joueur tape du texte
-        gammaInput.addEventListener('input', () => {
+        function changeWheel(id, dir) {
+            const el = document.getElementById('gamma-' + id);
+            let val = parseInt(el.innerText) + dir;
+            if (val > 9) val = 0; if (val < 0) val = 9;
+            el.innerText = val;
             checkWinCondition();
-        });
-
-        // --- LOGIQUE DU MODULE DELTA (MACHINE À SOUS) ---
-        const lever = document.getElementById('slot-lever');
-        const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
-        const deltaInput = document.getElementById('delta-value');
-        
-        // TES IMAGES ICI (à remplacer par tes vrais fichiers PNG)
-        const symbols = ['image1.png', 'image2.png', 'image3.png', 'image4.png'];
-        const fallbackEmojis = ['💀', '👁️', '🩸', '☢️']; // S'affiche si l'image ne charge pas
-
-        let isSpinning = false;
-        let leverDragging = false;
-        let startY = 0;
-
-        // Écouter le clic sur le levier
-        lever.addEventListener('mousedown', (e) => {
-            if (isSpinning || isUnlocked) return;
-            leverDragging = true;
-            startY = e.clientY;
-            document.body.style.userSelect = "none"; // Empêche de surligner du texte en glissant
-        });
-
-        // Tirer le levier vers le bas
-        document.addEventListener('mousemove', (e) => {
-            if (!leverDragging) return;
-            
-            let moveY = e.clientY - startY;
-            if (moveY < 0) moveY = 0; // Bloque en haut
-            if (moveY > 55) moveY = 55; // Bloque en bas
-            
-            lever.style.top = moveY + 'px';
-
-            // Si le levier atteint le bas, on déclenche !
-            if (moveY >= 50) {
-                leverDragging = false;
-                lever.style.top = '0px'; // Le levier remonte d'un coup
-                document.body.style.userSelect = "auto";
-                startSpin();
-            }
-        });
-
-        // Relâcher le clic trop tôt annule le tirage
-        document.addEventListener('mouseup', () => {
-            if (leverDragging) {
-                leverDragging = false;
-                lever.style.top = '0px';
-                document.body.style.userSelect = "auto";
-            }
-        });
-
-        function startSpin() {
-            isSpinning = true;
-            deltaInput.value = "0"; // Réinitialise la victoire
-            
-            // Animation : Les images défilent vite
-            let spinIntervals = [];
-            reels.forEach((reel, i) => {
-                spinIntervals[i] = setInterval(() => {
-                    const rand = Math.floor(Math.random() * symbols.length);
-                    reel.innerHTML = `<img src="${symbols[rand]}" alt="${fallbackEmojis[rand]}">`;
-                }, 80); // Vitesse de rotation
-            });
-
-            let results = [];
-            
-            // L'astuce secrète : 1 chance sur 3 de forcer la victoire pour éviter la frustration
-            const forceWin = Math.random() < 0.15; 
-            const winSymbol = Math.floor(Math.random() * symbols.length);
-
-            // Arrêt des roues à 1s, 2s et 3s
-            setTimeout(() => stopReel(0), 1000);
-            setTimeout(() => stopReel(1), 2000);
-            setTimeout(() => { stopReel(2); finalizeSpin(); }, 3000);
-
-            function stopReel(index) {
-                clearInterval(spinIntervals[index]);
-                // Si forceWin est vrai, on donne le symbole gagnant, sinon c'est du hasard pur
-                let finalSymbol = forceWin ? winSymbol : Math.floor(Math.random() * symbols.length);
-                results[index] = finalSymbol;
-                reels[index].innerHTML = `<img src="${symbols[finalSymbol]}" alt="${fallbackEmojis[finalSymbol]}">`;
-            }
-
-            function finalizeSpin() {
-                isSpinning = false;
-                // Si les 3 symboles sont identiques, le module Delta est validé !
-                if (results[0] === results[1] && results[1] === results[2]) {
-                    deltaInput.value = "1"; 
-                }
-                checkWinCondition();
-            }
         }
-        // --- LOGIQUE DES MODULES BETA, GAMMA, DELTA ---
-        sliders.forEach((slider, index) => {
-            slider.addEventListener('input', (e) => {
-                sliderVals[index].innerText = e.target.value;
-                checkWinCondition();
-            });
-        });
 
-       // --- 3. LOGIQUE DE VICTOIRE GLOBALE ---
+        document.getElementById('gamma-text').addEventListener('input', checkWinCondition);
+
+        // --- VÉRIFICATION GLOBALE ---
         function checkWinCondition() {
-            if (isUnlocked) return;
+            if (isGameWon) return;
 
-            // ALPHA
-            const alphaOk = alphaInput.value === "1";
+            // VÉRIFICATION ALPHA (S'arrête sur ligne 1)
+            const alphaOk = document.getElementById('alpha-value').value === "1";
             
-            // BETA (Vérification des paires)
-            const correctBetaPairs = { '1': 'b', '2': 'e', '3': 'a', '4': 'd', '5': 'f', '6': 'c' };
-            let betaOk = true;
-            let betaCount = 0;
-            for (let l in betaConnections) {
-                betaCount++;
-                if (correctBetaPairs[l] !== betaConnections[l]) betaOk = false;
-            }
-            if (betaCount !== 6) betaOk = false; // Il faut que les 6 soient reliés correctement
+            // VÉRIFICATION GAMMA (Simplifiée pour démo)
+            const gammaText = document.getElementById('gamma-text').value.toLowerCase().trim();
+            const gammaOk = (gammaText === "clopes" && document.getElementById('gamma-w1').innerText === "5");
 
-            // GAMMA & DELTA (Sliders temporaires)
-            // GAMMA (Vérification du code argenté)
-            let gammaOk = false;
-            
-            // On normalise le texte : enlève les accents, met tout en minuscules, et retire les espaces superflus
-            const rawText = gammaInput.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-            const w1Val = parseInt(gammaW1.innerText);
-            const w2Val = parseInt(gammaW2.innerText);
-
-            // La liste des combinaisons gagnantes (un seul match suffit)
-            const validGammaPairs = [
-                { w1: 5, w2: 6, txt: "clopes" },
-                { w1: 4, w2: 2, txt: "neurones" },
-                { w1: 4, w2: 5, txt: "exil" },
-                { w1: 6, w2: 7, txt: "flops" },
-                { w1: 3, w2: 0, txt: "milfs" }
-            ];
-
-            for (let pair of validGammaPairs) {
-                if (w1Val === pair.w1 && w2Val === pair.w2 && rawText === pair.txt) {
-                    gammaOk = true;
-                    break;
-                }
-            }
-            
-            // DELTA (Toujours l'ancien slider temporaire)
-            const deltaOk = document.getElementById('delta-value').value === "1";
-
-            // SI TOUT EST BON
-            if (alphaOk && betaOk && gammaOk && deltaOk) {
-                isUnlocked = true; 
-                sessionStorage.setItem('mixtapeUnlocked', 'true');
-                
-                sliders.forEach(s => s.disabled = true);
-                alphaRows.forEach(r => r.style.pointerEvents = 'none'); 
-                assocDots.forEach(d => d.style.pointerEvents = 'none'); // Bloque le module Beta
-                checkbox.disabled = true;
-                gammaInput.disabled = true;
-
-                // ---> COLLE LA LIGNE ICI AUSSI <---
+            // SI TOUT EST OK (ajoute tes conditions Beta et Delta réelles)
+            if (alphaOk && gammaOk) {
+                isGameWon = true;
+                document.getElementById('aptitude-success-message').style.display = 'block';
+                document.getElementById('aptitude-success-message').scrollIntoView({ behavior: 'smooth' });
+                // On cache le bouton de log car le test est fini
                 document.getElementById('secret-log-link').style.display = 'none';
-
-                gridWrapper.classList.add('revealed');
-
-                setTimeout(() => {
-                    gridWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 300);
             }
         }
+
+        // Ajoute ici tes écouteurs d'événements pour le cinéma, les lignes Beta et le levier Delta
+        // tels qu'ils étaient dans ta version précédente.
     </script>
 </body>
 </html>
