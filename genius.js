@@ -12,6 +12,7 @@ let contributionMode = false;
 let reportMode = false; 
 let authIntent = null;  
 let tempSelection = "";
+let isAuthorPreAuth = false; // NOUVEAU : Traque si c'est un auteur qui s'est connecté direct
 
 // 3. INITIALISATION DES BOUTONS ET DES MODALES
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,24 +25,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const pwdInput = document.getElementById('legacy-password');
     const pwdError = document.getElementById('password-error');
 
-    // 1. Clic sur le bouton de Contribution (Niveau 2)
+    // 1. Clic sur le bouton de Contribution (Niveau 2 ou 3)
     if (addBtn) {
         addBtn.addEventListener('click', () => {
             if (!contributionMode) {
                 authIntent = 'contribution';
-                
-                // On met à jour le titre ET le texte
-                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 2';
-                document.querySelector('#password-modal p').innerText = "Entrez le code d'habilitation de niveau 2.";
-                
+                // Le texte s'adapte pour indiquer qu'on accepte les deux codes
+                document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 2 / 3';
+                document.querySelector('#password-modal p').innerText = "Code d'accès Niveau 2, ou identifiant Auteur (Niveau 3).";
                 pwdModal.style.display = 'block';
                 pwdInput.value = '';
                 pwdError.style.display = 'none';
                 pwdInput.focus();
             } else {
+                // On éteint le mode
                 contributionMode = false;
+                isAuthorPreAuth = false;
                 addBtn.innerText = "MODE CONTRIBUTION : OFF";
                 addBtn.style.background = "#ff4141";
+                addBtn.style.color = "white";
+                
+                // On déverrouille et décoche la case auteur par sécurité
+                const isAuthorCheck = document.getElementById('is-author-check');
+                if (isAuthorCheck) {
+                    isAuthorCheck.checked = false;
+                    isAuthorCheck.disabled = false;
+                }
             }
         });
     }
@@ -51,11 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         reportBtn.addEventListener('click', () => {
             if (!reportMode) {
                 authIntent = 'report';
-                
-                // On met à jour le titre ET le texte
                 document.querySelector('#password-modal h3').innerText = 'HABILITATION NIVEAU 1';
                 document.querySelector('#password-modal p').innerText = "Entrez le code d'habilitation de niveau 1.";
-                
                 pwdModal.style.display = 'block';
                 pwdInput.value = '';
                 pwdError.style.display = 'none';
@@ -72,23 +78,65 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pwdSubmit) {
         pwdSubmit.addEventListener('click', () => {
             const password = pwdInput.value.trim().toLowerCase();
+            const codesAutorises = (window.ALLOWED_AUTHOR_CODES || []).map(c => c.toLowerCase());
+            const isAuthorCheck = document.getElementById('is-author-check');
             
+            // CAS A : Code Niveau 2 classique (johnlegacy)
             if (authIntent === 'contribution' && password === "johnlegacy") {
                 contributionMode = true;
                 reportMode = false; 
+                isAuthorPreAuth = false;
+                
+                if (isAuthorCheck) {
+                    isAuthorCheck.checked = false;
+                    isAuthorCheck.disabled = false;
+                }
+
                 addBtn.innerText = "MODE CONTRIBUTION : ON";
                 addBtn.style.background = "#28a745";
+                addBtn.style.color = "white";
                 if(reportBtn) { reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)"; reportBtn.style.background = "#ff4141"; }
                 pwdModal.style.display = 'none';
             } 
+            // CAS B : Code Niveau 3 tapé directement (L'artiste s'identifie tout de suite)
+            else if (authIntent === 'contribution' && codesAutorises.includes(password)) {
+                contributionMode = true;
+                reportMode = false;
+                isAuthorPreAuth = true;
+
+                if (isAuthorCheck) {
+                    isAuthorCheck.checked = true; // On coche automatiquement
+                    isAuthorCheck.disabled = true; // On verrouille la case pour ne pas qu'il l'enlève
+                }
+
+                addBtn.innerText = "MODE AUTEUR : ON";
+                addBtn.style.background = "#ffc107"; // On met le bouton en doré
+                addBtn.style.color = "#111"; // Texte sombre pour le contraste
+                if(reportBtn) { reportBtn.innerText = "SIGNALER UNE ANOMALIE (LYRICS)"; reportBtn.style.background = "#ff4141"; }
+                pwdModal.style.display = 'none';
+            }
+            // CAS C : Code Niveau 1 (grantaccess) pour le signalement
             else if (authIntent === 'report' && password === "grantaccess") {
                 reportMode = true;
                 contributionMode = false; 
+                isAuthorPreAuth = false;
+
                 reportBtn.innerText = "MODE SIGNALEMENT : ON";
                 reportBtn.style.background = "#28a745";
-                if(addBtn) { addBtn.innerText = "MODE CONTRIBUTION : OFF"; addBtn.style.background = "#ff4141"; }
+                
+                if(addBtn) { 
+                    addBtn.innerText = "MODE CONTRIBUTION : OFF"; 
+                    addBtn.style.background = "#ff4141"; 
+                    addBtn.style.color = "white";
+                }
+                if (isAuthorCheck) {
+                    isAuthorCheck.checked = false;
+                    isAuthorCheck.disabled = false;
+                }
+
                 pwdModal.style.display = 'none';
             } 
+            // ÉCHEC : Mot de passe faux ou ne correspondant pas au bon niveau
             else {
                 pwdError.style.display = 'block';
                 pwdInput.value = '';
@@ -108,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- HABILITATION NIVEAU 3 (AUTEURS) ---
+    // --- HABILITATION NIVEAU 3 (AUTEURS VIA LA CASE) ---
     const isAuthorCheck = document.getElementById('is-author-check');
     const authorModal = document.getElementById('author-auth-modal');
     const authorSubmit = document.getElementById('author-submit-btn');
